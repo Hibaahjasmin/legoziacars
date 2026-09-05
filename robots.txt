@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+
+# Optional: Add your sitemap once generated
+# Sitemap: https://yourdomain.com/sitemap.xml

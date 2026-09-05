@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime, timedelta
-
+from flask import send_from_directory
 from dotenv import load_dotenv
 from flask import (
     Flask,
@@ -485,6 +485,11 @@ def publish_inquiry(id):
     flash("Inquiry dismissed.")
     return redirect(url_for('admin_dashboard'))
 
+
+
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory(app.static_folder, 'robots.txt')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
