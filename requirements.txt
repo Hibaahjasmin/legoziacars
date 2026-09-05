@@ -5,6 +5,5 @@ Flask-SocketIO
 python-dotenv
 cloudinary
 psycopg2-binary
-gunicorn
+gunicorn==20.1.0
 eventlet
-gevent
