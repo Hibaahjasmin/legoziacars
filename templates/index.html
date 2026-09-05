@@ -416,25 +416,27 @@
     
     <!-- Main Display Image -->
     <div class="relative bg-[#D8D2C6] aspect-[16/10] w-full rounded-xl overflow-hidden border border-[#8B5E34]/30 shadow-inner">
-        <img :src="'/static/' + (selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex])" 
-             class="w-full h-full object-cover transition-all duration-500" 
-             :alt="selectedCar.model">
-        <div class="absolute bottom-2.5 right-2.5 bg-[#121A11]/90 backdrop-blur-md text-[#8B5E34] text-[10px] px-2 py-0.5 rounded font-mono font-bold tracking-widest border border-[#8B5E34]/30">
-            <span x-text="activeImageIndex + 1"></span>/<span x-text="selectedCar.images.length"></span>
-        </div>
+    <img :src="(selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex]).startsWith('http') 
+                ? (selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex]) 
+                : '/static/' + (selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex])" 
+         class="w-full h-full object-cover transition-all duration-500" 
+         :alt="selectedCar.model">
+    <div class="absolute bottom-2.5 right-2.5 bg-[#121A11]/90 backdrop-blur-md text-[#8B5E34] text-[10px] px-2 py-0.5 rounded font-mono font-bold tracking-widest border border-[#8B5E34]/30">
+        <span x-text="activeImageIndex + 1"></span>/<span x-text="selectedCar.images.length"></span>
     </div>
+</div>
 
-    <!-- Thumbnails Carousel -->
-    <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar items-center">
-        <template x-for="(img, idx) in selectedCar.images" :key="idx">
-            <button @click="activeImageIndex = idx" 
-                    class="relative w-14 h-10 sm:w-20 sm:h-12 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all duration-300"
-                    :class="activeImageIndex === idx ? 'border-[#8B5E34] scale-95 shadow-[0_0_10px_rgba(139,94,52,0.3)]' : 'border-[#8B5E34]/20 opacity-60 hover:opacity-100'">
-                <img :src="'/static/' + (img.image_path || img)" class="w-full h-full object-cover">
-            </button>
-        </template>
-    </div>
-
+<!-- Thumbnails Carousel -->
+<div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar items-center">
+    <template x-for="(img, idx) in selectedCar.images" :key="idx">
+        <button @click="activeImageIndex = idx" 
+                class="relative w-14 h-10 sm:w-20 sm:h-12 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all duration-300"
+                :class="activeImageIndex === idx ? 'border-[#8B5E34] scale-95 shadow-[0_0_10px_rgba(139,94,52,0.3)]' : 'border-[#8B5E34]/20 opacity-60 hover:opacity-100'">
+            <img :src="(img.image_path || img).startsWith('http') ? (img.image_path || img) : '/static/' + (img.image_path || img)" 
+                 class="w-full h-full object-cover">
+        </button>
+    </template>
+</div>
 
                     <!-- Key Spec Badges -->
                     <div class="grid grid-cols-4 gap-2">
