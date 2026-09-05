@@ -488,7 +488,7 @@ def publish_inquiry(id):
 
 
 @app.route('/robots.txt')
-def robots():
+def serve_robots_file():
     return send_from_directory(app.static_folder, 'robots.txt')
 
 @app.route('/login', methods=['GET', 'POST'])
