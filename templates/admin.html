@@ -341,21 +341,40 @@
                                 </div>
                             </div>
 
-                            {% if item.images %}
-                                <div class="mt-4 pt-3 border-t border-[#8B5E34]/10">
-                                    <span class="text-[10px] font-black uppercase tracking-wider text-[#8B5E34] block mb-2">Photos</span>
-                                    <div class="flex flex-wrap gap-2">
-                                        {% for img_path in item.images.split(',') %}
-                                            {% if img_path.strip() %}
-                                                {% set full_url = url_for('static', filename=img_path.replace('static/', '')) %}
-                                                <button type="button" onclick="openLightbox('{{ full_url }}')" class="group relative aspect-video w-20 overflow-hidden rounded-lg border border-[#8B5E34]/20 bg-white focus:outline-none shadow-sm">
-                                                    <img src="{{ full_url }}" loading="lazy" class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105 opacity-90 group-hover:opacity-100">
-                                                </button>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endif %}
+                           {% if item.images %}
+    <div class="mt-4 pt-3 border-t border-[#8B5E34]/10">
+        <span class="text-[10px] font-black uppercase tracking-wider text-[#8B5E34] block mb-2">Photos</span>
+        <div class="flex flex-wrap gap-2">
+            {% if item.images is string %}
+                {% set img_list = item.images.split(',') %}
+            {% else %}
+                {% set img_list = item.images %}
+            {% endif %}
+
+            {% for raw_path in img_list %}
+                {% set clean_path = (raw_path.image_path if raw_path.image_path is defined else raw_path)|string|trim %}
+                {% if clean_path %}
+                    {% if clean_path.startswith('http') %}
+                        {% set full_url = clean_path %}
+                    {% elif clean_path.startswith('/static/') %}
+                        {% set full_url = clean_path %}
+                    {% elif clean_path.startswith('static/') %}
+                        {% set full_url = '/' ~ clean_path %}
+                    {% else %}
+                        {% set full_url = '/static/' ~ clean_path %}
+                    {% endif %}
+
+                    <button type="button" onclick="openLightbox('{{ full_url }}')" class="group relative aspect-video w-20 overflow-hidden rounded-lg border border-[#8B5E34]/20 bg-white focus:outline-none shadow-sm">
+                        <img src="{{ full_url }}" 
+                             loading="lazy" 
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image';" 
+                             class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105 opacity-90 group-hover:opacity-100">
+                    </button>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
                         </div>
                     {% endfor %}
                 </div>
