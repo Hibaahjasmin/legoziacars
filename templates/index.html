@@ -334,13 +334,13 @@
                 <!-- SQUARE IMAGE CONTAINER -->
 <!-- SQUARE IMAGE CONTAINER -->
 <div class="relative w-full aspect-[16/10] bg-[#E2DCCE] overflow-hidden">
-    {% if car.images and car.images|length > 0 %}
-        <img src="/static/{{ car.images[0].image_path }}" 
-             alt="{{ car.brand }} {{ car.model }}" 
-             loading="lazy" 
-             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image+Available';"
-             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out">
-    {% else %}
+   {% if car.images and car.images|length > 0 %}
+    <img src="{{ car.images[0].image_path if car.images[0].image_path.startswith('http') else '/static/' ~ car.images[0].image_path }}" 
+         alt="{{ car.brand }} {{ car.model }}" 
+         loading="lazy" 
+         onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image+Available';"
+         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out">
+{% else %}
         <!-- Fallback Placeholder -->
         <div class="w-full h-full flex flex-col items-center justify-center bg-[#D8D2C6] text-[#8B5E34]">
             <svg class="w-8 h-8 opacity-40 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
