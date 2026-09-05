@@ -5,6 +5,6 @@ Flask-Mail
 python-dotenv
 gunicorn
 gevent
-event-websocket
+gevent-websocket
 psycopg2-binary
 werkzeug
