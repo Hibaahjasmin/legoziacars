@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard Control Room | Legozia</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='lego.png') }}">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .glow-effect {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glow-effect:hover {
+            box-shadow: 0 0 30px rgba(139, 94, 52, 0.08);
+            border-color: rgba(139, 94, 52, 0.3);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #EAE6DF; }
+        ::-webkit-scrollbar-thumb { background: #d3c8b9; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8B5E34; }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-[#EAE6DF] text-[#121A11] min-h-screen antialiased transition-colors duration-300">
+
+    <header class="bg-[#F4F6F4]/90 backdrop-blur-xl border-b border-[#8B5E34]/15 h-20 sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+            <a href="/" class="flex items-center gap-4 group transition-all duration-300">
+                <div class="w-10 h-10 flex items-center justify-center border border-[#8B5E34]/20 bg-[#8B5E34] rounded-lg group-hover:border-[#8B5E34] transition-colors duration-300 shadow-sm">
+                    <img src="{{ url_for('static', filename='lego.png') }}" alt="Legozia Logo" class="w-6 h-6 object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
+                </div>
+                <span class="text-xs uppercase tracking-[0.3em] font-black hidden sm:inline text-[#121A11]/60 group-hover:text-[#121A11] transition-colors duration-300">
+                    Control Panel
+                </span>
+            </a>
+
+            <div class="flex items-center gap-4 sm:gap-8">
+                <a href="/" class="text-[10px] font-black tracking-[0.2em] text-[#121A11]/60 hover:text-[#8B5E34] transition-all duration-300 uppercase py-2">
+                    Main Site
+                </a>
+                <a href="/logout" class="group flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-[#121A11]/60 hover:text-[#ef4444] transition-all duration-300 uppercase py-2">
+                    Logout
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 sm:space-y-12">
+        
+        <div class="text-left">
+            <h1 class="text-xl sm:text-2xl font-black tracking-[0.1em] text-[#121A11] uppercase transition-colors duration-300">
+                <span class="text-[#8B5E34]">
+                    Showroom
+                </span> 
+                Inventory Ledger
+            </h1>
+            <p class="text-[#121A11]/70 text-[11px] sm:text-xs mt-1.5 max-w-2xl leading-relaxed tracking-wide transition-colors duration-300">
+                Deploy premium vehicle entries, structure multiple high-fidelity graphics matrices, reorder global showroom assets, or purge active logs in real-time.
+            </p>
+        </div>
+
+        {% with messages = get_flashed_messages(category_filter=["success"]) %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs rounded-xl flex items-center gap-2.5 fade-in">
+                    <span class="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/20 text-[10px] font-bold">✓</span>
+                    <span class="font-medium tracking-wide">{{ message }}</span>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
+            
+            <div class="bg-[#F4F6F4] backdrop-blur-xl border border-[#8B5E34]/15 rounded-2xl p-5 sm:p-6 lg:col-span-1 glow-effect fade-in transition-all duration-300 shadow-sm">
+                <h3 class="font-black text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#121A11] mb-6 flex items-center gap-3 text-left">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#8B5E34] shadow-[0_0_8px_rgba(139,94,52,0.6)]"></span>
+                    Provision Fleet Unit
+                </h3>
+                
+                <form id="vehicle_form" action="/admin/add" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs text-left">
+                    <div>
+                        <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold mb-1.5">Brand / Make</label>
+                        <input type="text" name="brand" required placeholder="e.g., Hyundai" class="w-full p-3.5 bg-white border border-[#8B5E34]/20 focus:border-[#8B5E34] rounded-xl outline-none text-[#121A11] transition-all placeholder:text-[#121A11]/40 font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold mb-1.5">Model Variant</label>
+                        <input type="text" name="model" required placeholder="e.g., Creta SX (O)" class="w-full p-3.5 bg-white border border-[#8B5E34]/20 focus:border-[#8B5E34] rounded-xl outline-none text-[#121A11] transition-all placeholder:text-[#121A11]/40 font-medium">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold mb-1.5">Year</label>
+                            <input type="number" name="year" placeholder="2026" class="w-full p-3.5 bg-white border border-[#8B5E34]/20 focus:border-[#8B5E34] rounded-xl outline-none text-[#121A11] transition-all placeholder:text-[#121A11]/40 font-medium">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold mb-1.5">Mileage (km)</label>
+                            <input type="text" name="mileage" placeholder="e.g., 24,500 km" class="w-full p-3.5 bg-white border border-[#8B5E34]/20 focus:border-[#8B5E34] rounded-xl outline-none text-[#121A11] transition-all placeholder:text-[#121A11]/40 font-medium">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold mb-1.5">Fuel Type</label>
+                            <select name="fuel" class="w-full p-3.5 bg-white border border-[#8B5E34]/20 focus:border-[#8B5E34] rounded-xl outline-none text-[#121A11] transition-all cursor-pointer font-medium">
+                                <option>N/A</option>
+                                <option value="Petrol">Petrol</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Electric">Electric</option>
+                                <option value="CNG">CNG</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold mb-1.5">Transmission</label>
+                            <select name="transmission" class="w-full p-3.5 bg-white border border-[#8B5E34]/20 focus:border-[#8B5E34] rounded-xl outline-none text-[#121A11] transition-all cursor-pointer font-medium">
+                                <option>N/A</option>
+                                <option value="Automatic">Automatic</option>
+                                <option value="Manual">Manual</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold mb-1.5">Showroom Price</label>
+                        <input type="text" name="price" placeholder="e.g., ₹14,50,000" class="w-full p-3.5 bg-white border border-[#8B5E34]/20 focus:border-[#8B5E34] rounded-xl outline-none text-[#121A11] transition-all placeholder:text-[#121A11]/40 font-mono font-medium">
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold">Media Showcase Grid</label>
+                        
+                        <div onclick="document.getElementById('photo_input').click()" 
+                             class="border border-dashed border-[#8B5E34]/30 hover:border-[#8B5E34] rounded-xl p-4 sm:p-5 text-center cursor-pointer transition-all duration-300 bg-white/50 hover:bg-white group shadow-[inset_0_1px_2px_rgba(0,0,0,0.01)]">
+                            <span class="text-xs text-[#121A11] font-black tracking-wide block group-hover:text-[#8B5E34] transition-colors duration-300 uppercase">Import Showroom Media</span>
+                            <p class="text-[9px] text-[#121A11]/60 mt-1">Tap to open gallery or rearrange using control arrows</p>
+                        </div>
+
+                        <input type="file" id="photo_input" multiple accept="image/*" class="hidden">
+                        
+                        <div id="grid_workspace" class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2 w-full"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[9px] sm:text-[10px] uppercase tracking-widest text-[#121A11]/70 font-bold mb-1.5">Description / Extra Details</label>
+                        <textarea name="description" rows="3" placeholder="e.g., Single owner, panoramic sunroof..." class="w-full p-3.5 bg-white border border-[#8B5E34]/20 focus:border-[#8B5E34] rounded-xl outline-none text-[#121A11] text-xs transition-all placeholder:text-[#121A11]/40 font-medium leading-relaxed resize-none"></textarea>
+                    </div>
+
+                    <div class="pt-2">
+                        <button id="submit_btn" type="submit" class="w-full bg-[#8B5E34] text-[#F4F6F4] font-black py-3.5 rounded-xl transition-all duration-300 tracking-[0.25em] uppercase text-[10px] hover:bg-[#724c29] hover:shadow-[0_0_20px_rgba(139,94,52,0.3)] active:scale-[0.99]">
+                            Publish Fleet Asset
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-[#F4F6F4] backdrop-blur-xl border border-[#8B5E34]/15 rounded-2xl overflow-hidden lg:col-span-2 shadow-sm transition-colors duration-300">
+                <div class="px-5 sm:px-8 py-5 sm:py-6 border-b border-[#8B5E34]/15 flex items-center justify-between">
+                    <h3 class="font-black text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#121A11]">Active Showroom Fleet</h3>
+                    <span class="text-[9px] sm:text-[10px] font-mono font-bold text-[#8B5E34] bg-[#8B5E34]/10 px-3 py-1 rounded border border-[#8B5E34]/20">
+                        Total: {{ cars|length }}
+                    </span>
+                </div>
+
+                <div class="divide-y divide-[#8B5E34]/10">
+                    {% if not cars %}
+                    <div class="p-16 text-center text-[#121A11]/50 text-[10px] tracking-[0.2em] uppercase">
+                        No assets currently in ledger.
+                    </div>
+                    {% endif %}
+                    
+                    {% for car in cars %}
+                    <div class="px-5 sm:px-8 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 hover:bg-[#8B5E34]/5 transition-all">
+                        <div class="flex items-center gap-4 sm:gap-5 text-left">
+                            <div class="relative w-20 h-12 rounded-xl overflow-hidden border border-[#8B5E34]/20 flex-shrink-0 bg-[#EAE6DF]">
+                                {% if car.images and car.images|length > 0 %}
+                                    {% set first_img = car.images[0].image_path if car.images[0].image_path is defined else car.images[0] %}
+                                    {% set img_url = url_for('static', filename=first_img.replace('static/', '')) if not first_img.startswith('http') else first_img %}
+                                    <img src="{{ img_url }}" alt="{{ car.brand }} {{ car.model }}" loading="lazy" class="w-full h-full object-cover">
+                                    <div class="absolute bottom-1 right-1 bg-black/60 text-[8px] px-1.5 py-0.5 text-white font-mono rounded-md border border-white/10">
+                                        {{ car.images|length }}
+                                    </div>
+                                {% else %}
+                                    <div class="w-full h-full flex items-center justify-center text-[8px] font-mono text-[#8B5E34]/60 uppercase">
+                                        No Image
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h4 class="font-black text-[#121A11] text-xs sm:text-sm tracking-tight uppercase">{{ car.brand }} <span class="font-medium text-[#121A11]/70">{{ car.model }}</span></h4>
+                                <p class="text-[9px] sm:text-[10px] text-[#121A11]/60 font-bold tracking-widest uppercase mt-1">
+                                    {{ car.year }} &bull; {{ car.mileage }} &bull; {{ car.fuel }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between sm:justify-end gap-6 sm:gap-8 border-t sm:border-t-0 border-[#8B5E34]/10 pt-3 sm:pt-0">
+                            <div class="text-left sm:text-right">
+                                <span class="text-[8px] sm:text-[9px] text-[#121A11]/60 block uppercase tracking-[0.2em] font-bold">Valuation</span>
+                                <span class="text-xs sm:text-sm font-mono font-bold text-[#8B5E34]">{{ car.price }}</span>
+                            </div>
+                            
+                            <form action="/admin/delete/{{ car.id }}" method="POST" onsubmit="return confirm('Remove asset from ledger?')">
+                                <button type="submit" class="h-8 px-3 flex items-center justify-center text-[9px] uppercase tracking-[0.2em] font-bold text-[#121A11]/60 hover:text-red-600 border border-[#8B5E34]/20 hover:border-red-300 rounded-lg transition-all bg-transparent hover:bg-red-500/10">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-[#F4F6F4] backdrop-blur-xl border border-[#8B5E34]/15 rounded-3xl overflow-hidden shadow-[0_0_30px_rgba(139,94,52,0.03)] transition-all duration-300">
+            <div class="px-5 sm:px-8 py-6 sm:py-8 border-b border-[#8B5E34]/15 flex items-end justify-between">
+                <div class="text-left">
+                    <h3 class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-[#8B5E34] mb-1 sm:mb-2">
+                        Live CRM Pipelines
+                    </h3>
+                    <h2 class="text-lg sm:text-xl font-black text-[#121A11] tracking-[0.05em] uppercase">
+                        Inquiry Records Ledger
+                    </h2>
+                </div>
+                <div class="text-right">
+                    <span class="text-2xl sm:text-3xl font-mono font-bold text-[#8B5E34]">
+                        {{ inquiries|length if inquiries else 0 }}
+                    </span>
+                    <p class="text-[8px] font-black text-[#121A11]/50 uppercase tracking-[0.2em] mt-0.5 sm:mt-1">
+                        Active Logs
+                    </p>
+                </div>
+            </div>
+
+            <div class="divide-y divide-[#8B5E34]/10">
+                {% if not inquiries %}
+                    <div class="p-16 sm:p-20 text-center text-[#121A11]/50 text-[10px] sm:text-xs uppercase tracking-[0.2em] font-medium">No system communication logs mapped.</div>
+                {% else %}
+                    {% for item in inquiries %}
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 p-5 sm:p-8 hover:bg-[#8B5E34]/5 transition-all items-start text-left">
+                        <div class="md:col-span-2 space-y-0.5">
+                            <p class="text-[8px] sm:text-[9px] font-black text-[#8B5E34] uppercase tracking-widest">{{ item.type }}</p>
+                            <p class="timestamp-display text-[9px] sm:text-[10px] font-mono text-[#121A11]/60" data-timestamp="{{ item.timestamp }}"></p>
+                        </div>
+                        <div class="md:col-span-4">
+                            <h4 class="font-black text-[#121A11] text-sm tracking-wide uppercase">{{ item.name }}</h4>
+                            <div class="flex items-center gap-4 mt-1">
+                                <a href="tel:{{ item.phone }}" class="text-[10px] font-mono text-[#121A11]/70 hover:text-[#8B5E34] underline decoration-[#8B5E34]/30 underline-offset-4 transition-colors">
+                                    {{ item.phone }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="md:col-span-4">
+                            <p class="text-xs text-[#121A11]/80 leading-relaxed italic bg-white p-3 rounded-xl border border-[#8B5E34]/15 shadow-sm">
+                                "{{ item.message }}"
+                            </p>
+                        </div>
+                        <div class="md:col-span-2 text-left md:text-right flex flex-col md:justify-center">
+                            {% if item.type == 'Car Inquiry' or item.car_name %}
+                                <span class="text-[8px] sm:text-[9px] font-bold text-[#121A11]/50 uppercase tracking-widest block">Target Unit</span>
+                                <p class="text-xs font-black text-[#121A11] mt-0.5 tracking-wide uppercase">{{ item.car_name }}</p>
+                                <p class="text-[9px] sm:text-[10px] font-mono text-[#8B5E34] font-semibold mt-0.5">{{ item.est_emi }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="bg-[#F4F6F4] border border-[#8B5E34]/15 rounded-2xl p-6 shadow-sm">
+            <div class="flex items-center justify-between pb-4 mb-6 border-b border-[#8B5E34]/15">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-lg sm:text-xl font-black text-[#121A11] uppercase tracking-tight">Vehicle Valuations</h2>
+                    <span class="bg-[#8B5E34]/10 text-[#8B5E34] border border-[#8B5E34]/20 text-xs font-mono font-bold px-2.5 py-0.5 rounded-full">
+                        {{ car_inquiries|length if car_inquiries else 0 }}
+                    </span>
+                </div>
+                <p class="text-xs text-[#121A11]/60 font-medium hidden sm:block">Sell Car submissions log</p>
+            </div>
+
+            {% if car_inquiries %}
+                <div class="space-y-4">
+                    {% for item in car_inquiries %}
+                        <div class="bg-white border border-[#8B5E34]/15 rounded-xl p-5 hover:border-[#8B5E34]/40 transition-colors shadow-sm">
+                            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#8B5E34]/10">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm sm:text-base font-black text-[#121A11] uppercase tracking-wide">
+                                        {{ item.car_name if item.car_name else 'Vehicle Evaluation' }}
+                                    </span>
+                                    <span class="text-xs font-mono text-[#8B5E34] font-bold">#{{ item.id }}</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-mono text-[#121A11]/60">{{ item.timestamp }}</span>
+                                    <form action="{{ url_for('publish_inquiry', id=item.id) }}" method="POST" onsubmit="return confirm('Dismiss this submission?');">
+                                        <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-bold hover:bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20 transition-colors uppercase tracking-wider">
+                                            Dismiss
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-[#121A11]/80">
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-[#8B5E34] block mb-1">Seller Details</span>
+                                    <p><span class="text-[#121A11]/50 font-medium">Name:</span> <strong class="text-[#121A11]">{{ item.name }}</strong></p>
+                                    <p><span class="text-[#121A11]/50 font-medium">Phone:</span> <span class="font-mono">{{ item.phone }}</span></p>
+                                    <p><span class="text-[#121A11]/50 font-medium">Email:</span> <span class="font-mono">{{ item.email }}</span></p>
+                                    <p><span class="text-[#121A11]/50 font-medium">City:</span> {{ item.place }}</p>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-[#8B5E34] block mb-1">Specs & Asking</span>
+                                    <p><span class="text-[#121A11]/50 font-medium">Model:</span> {{ item.brand }} {{ item.car_model }} {{ item.variant if item.variant else '' }} ({{ item.year }})</p>
+                                    <p><span class="text-[#121A11]/50 font-medium">Driven:</span> {{ item.km_driven }} | {{ item.fuel_type }} ({{ item.transmission }})</p>
+                                    <p><span class="text-[#121A11]/50 font-medium">History:</span> {{ item.owners }} | Reg: {{ item.registration_number if item.registration_number else 'N/A' }}</p>
+                                    <p class="text-[#8B5E34] font-mono font-bold pt-0.5"><span class="text-[#121A11]/50 font-medium">Price:</span> {{ item.expected_amount }}</p>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-[#8B5E34] block mb-1">Condition</span>
+                                    <p><span class="text-[#121A11]/50 font-medium">Overall:</span> {{ item.overall_condition }}</p>
+                                    <p><span class="text-[#121A11]/50 font-medium">Accidents:</span> {{ item.accident_history }}</p>
+                                    <p><span class="text-[#121A11]/50 font-medium">Service:</span> {{ item.service_history }}</p>
+                                    {% if item.message %}
+                                        <p class="text-[#121A11]/70 italic pt-1 bg-[#F4F6F4] p-2 rounded-lg border border-[#8B5E34]/10">"{{ item.message }}"</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if item.images %}
+                                <div class="mt-4 pt-3 border-t border-[#8B5E34]/10">
+                                    <span class="text-[10px] font-black uppercase tracking-wider text-[#8B5E34] block mb-2">Photos</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        {% for img_path in item.images.split(',') %}
+                                            {% if img_path.strip() %}
+                                                {% set full_url = url_for('static', filename=img_path.replace('static/', '')) %}
+                                                <button type="button" onclick="openLightbox('{{ full_url }}')" class="group relative aspect-video w-20 overflow-hidden rounded-lg border border-[#8B5E34]/20 bg-white focus:outline-none shadow-sm">
+                                                    <img src="{{ full_url }}" loading="lazy" class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105 opacity-90 group-hover:opacity-100">
+                                                </button>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-10 text-xs text-[#121A11]/50 uppercase tracking-widest font-medium border border-dashed border-[#8B5E34]/20 rounded-xl bg-white/50">
+                    No vehicle valuation submissions to show.
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="imageLightbox" class="fixed inset-0 z-50 hidden bg-[#121A11]/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeLightbox()">
+            <div class="relative max-w-5xl max-h-[90vh] overflow-hidden rounded-2xl border border-[#8B5E34]/30 shadow-2xl bg-[#F4F6F4]" onclick="event.stopPropagation()">
+                <button type="button" onclick="closeLightbox()" class="absolute top-3 right-3 text-[#121A11]/70 hover:text-[#121A11] bg-white hover:bg-[#EAE6DF] p-2 rounded-full border border-[#8B5E34]/20 transition-colors z-10 shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <img id="lightboxImg" src="" class="max-h-[85vh] w-auto max-w-full object-contain">
+            </div>
+        </div>
+    </main>
+
+ <!-- Toast Container for In-App Alerts -->
+<div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+<!-- Socket.IO Client Library -->
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+    // Single Socket Connection
+    const socket = io();
+
+    // Unified Socket Event Listener
+    socket.on('new_inquiry', function(data) {
+        // 1. Trigger In-App Tailwind Toast Notification
+        const container = document.getElementById('toast-container');
+        if (container) {
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto bg-[#121A11] text-[#D8D2C6] border border-[#8B5E34] p-4 rounded shadow-2xl transition-all duration-300 transform translate-y-4 opacity-0 min-w-[280px] max-w-sm';
+            toast.innerHTML = `
+                <div class="flex items-center justify-between pb-1 border-b border-[#8B5E34]/30 mb-2">
+                    <span class="font-bold text-xs uppercase tracking-widest text-[#8B5E34]">${data.title}</span>
+                    <span class="text-[10px] font-mono text-[#8B5E34]">NOW</span>
+                </div>
+                <div class="text-sm font-sans">${data.message}</div>
+            `;
+            
+            container.appendChild(toast);
+
+            // Animate In
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+            }, 50);
+
+            // Animate Out & Remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-4', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        // 2. Trigger Native OS/Browser Desktop Notification (if app is running in background tab)
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(data.title, {
+                body: data.message,
+                icon: "{{ url_for('static', filename='lego.png') }}"
+            });
+        }
+    });
+
+    let transientMediaList = [];
+    let dragSourceElement = null;
+
+    // Request OS Notification Permission on Load & Format Timestamps
+    document.addEventListener("DOMContentLoaded", () => {
+        const timeDisplays = document.querySelectorAll('.timestamp-display');
+        timeDisplays.forEach(el => {
+            const rawTime = el.getAttribute('data-timestamp');
+            if (rawTime) {
+                const date = new Date(rawTime);
+                if (!isNaN(date)) {
+                    el.innerText = date.toLocaleString(undefined, { 
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+                    });
+                } else { 
+                    el.innerText = rawTime; 
+                }
+            }
+        });
+
+        // Request Browser Notification Permission for OS Popups
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    });
+
+    function compressImage(file, maxWidth = 1600, quality = 0.8) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob((blob) => {
+                        const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        resolve({
+                            file: compressedFile,
+                            blobUrl: URL.createObjectURL(compressedFile)
+                        });
+                    }, 'image/jpeg', quality);
+                };
+            };
+        });
+    }
+
+    const photoInput = document.getElementById('photo_input');
+    if (photoInput) {
+        photoInput.addEventListener('change', async function(event) {
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+
+            const processedItems = await Promise.all(files.map(file => compressImage(file)));
+
+            processedItems.forEach(item => {
+                transientMediaList.push({
+                    id: Math.random().toString(36).substring(2, 11),
+                    file: item.file,
+                    blobUrl: item.blobUrl
+                });
+            });
+
+            event.target.value = '';
+            renderGridWorkspace();
+        });
+    }
+
+    function openLightbox(src) {
+        const lightbox = document.getElementById('imageLightbox');
+        const img = document.getElementById('lightboxImg');
+        if (lightbox && img) {
+            img.src = src;
+            lightbox.classList.remove('hidden');
+        }
+    }
+
+    function closeLightbox() {
+        const lightbox = document.getElementById('imageLightbox');
+        const img = document.getElementById('lightboxImg');
+        if (lightbox && img) {
+            lightbox.classList.add('hidden');
+            img.src = '';
+        }
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLightbox();
+    });
+
+    window.shiftOrder = function(index, direction) {
+        const targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= transientMediaList.length) return;
+        
+        const temp = transientMediaList[index];
+        transientMediaList[index] = transientMediaList[targetIndex];
+        transientMediaList[targetIndex] = temp;
+        
+        renderGridWorkspace();
+    };
+
+    function renderGridWorkspace() {
+        const container = document.getElementById('grid_workspace');
+        if (!container) return;
+
+        container.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+
+        transientMediaList.forEach((media, index) => {
+            const card = document.createElement('div');
+            card.draggable = true;
+            card.dataset.index = index;
+            
+            card.className = `relative aspect-square rounded-xl border overflow-hidden group cursor-grab active:cursor-grabbing transition-all duration-300 select-none ${
+                index === 0 
+                ? 'border-[#8B5E34] ring-2 ring-[#8B5E34]/10' 
+                : 'border-gray-200 bg-gray-50'
+            }`;
+
+            card.innerHTML = `
+                <img src="${media.blobUrl}" loading="lazy" class="w-full h-full object-cover pointer-events-none group-hover:scale-105 transition-transform duration-500">
+                
+                <div class="absolute top-2 left-2 pointer-events-none z-10">
+                    <span class="px-1.5 py-0.5 rounded text-[8px] font-black tracking-widest uppercase shadow-md ${
+                        index === 0 ? 'bg-[#8B5E34] text-white' : 'bg-gray-900/90 text-gray-200 border border-white/5'
+                    }">
+                        ${index === 0 ? '🏆 Main' : `#0${index + 1}`}
+                    </span>
+                </div>
+
+                <div class="absolute bottom-2 left-2 flex items-center gap-1 z-20 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <button type="button" onclick="window.shiftOrder(${index}, -1); event.stopPropagation();" ${index === 0 ? 'disabled' : ''} 
+                            class="w-6 h-6 rounded-md bg-black/70 border border-white/10 text-white flex items-center justify-center text-xs active:bg-[#8B5E34] disabled:opacity-30 disabled:pointer-events-none">
+                        ←
+                    </button>
+                    <button type="button" onclick="window.shiftOrder(${index}, 1); event.stopPropagation();" ${index === transientMediaList.length - 1 ? 'disabled' : ''} 
+                            class="w-6 h-6 rounded-md bg-black/70 border border-white/10 text-white flex items-center justify-center text-xs active:bg-[#8B5E34] disabled:opacity-30 disabled:pointer-events-none">
+                        →
+                    </button>
+                </div>
+
+                <button type="button" onclick="removeMedia(${index}); event.stopPropagation();" 
+                        class="absolute top-2 right-2 w-6 h-6 bg-red-950/90 hover:bg-red-600 text-red-400 hover:text-white rounded-lg text-xs font-bold opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all flex items-center justify-center border border-red-500/20 shadow-lg z-20">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            `;
+
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragover', handleDragOver);
+            card.addEventListener('drop', handleDrop);
+            card.addEventListener('dragend', handleDragEnd);
+
+            fragment.appendChild(card);
+        });
+
+        container.appendChild(fragment);
+    }
+
+    function handleDragStart(e) {
+        this.classList.add('opacity-40', 'scale-95');
+        dragSourceElement = this;
+        e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleDragOver(e) {
+        if (e.preventDefault) e.preventDefault();
+        return false;
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        if (dragSourceElement !== this) {
+            const srcIdx = parseInt(dragSourceElement.dataset.index);
+            const targetIdx = parseInt(this.dataset.index);
+
+            const movingItem = transientMediaList.splice(srcIdx, 1)[0];
+            transientMediaList.splice(targetIdx, 0, movingItem);
+
+            renderGridWorkspace();
+        }
+        return false;
+    }
+
+    function handleDragEnd() {
+        this.classList.remove('opacity-40', 'scale-95');
+    }
+
+    function removeMedia(index) {
+        URL.revokeObjectURL(transientMediaList[index].blobUrl);
+        transientMediaList.splice(index, 1);
+        renderGridWorkspace();
+    }
+
+    const vehicleForm = document.getElementById('vehicle_form');
+    if (vehicleForm) {
+        vehicleForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submit_btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Publishing...";
+            }
+
+            const formElement = event.target;
+            const payload = new FormData(formElement);
+
+            payload.delete('photos');
+
+            transientMediaList.forEach((media, index) => {
+                payload.append('photos', media.file);
+                payload.append('photo_order[]', index + 1);
+            });
+
+            fetch(formElement.action, {
+                method: 'POST',
+                body: payload
+            }).then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    window.location.reload();
+                }
+            }).catch(err => {
+                console.error("Media transmission payload fault:", err);
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Publish Fleet Asset";
+                }
+            });
+        });
+    }
+</script>
+</body>
+</html>

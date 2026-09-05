@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Access Gateway | Legozia</title>
+    <link rel="icon" type="image/png" href="/static/lego.png">
+
+    <style>
+        *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: #e5e7eb; }
+        html { line-height: 1.5; -webkit-text-size-adjust: 100%; font-family: ui-sans-serif, system-ui, sans-serif; scroll-behavior: smooth; }
+        body { margin: 0; line-height: inherit; background-color: #EAE6DF; color: #121A11; }
+        
+        .gateway-card {
+            width: 100%;
+            max-width: 28rem;
+            padding: 1.5rem;
+            background-color: #F4F6F4;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(139, 94, 52, 0.2);
+            box-shadow: 0 20px 50px rgba(18, 26, 17, 0.08);
+            position: relative;
+            z-index: 10;
+        }
+        @media (min-width: 640px) { .gateway-card { padding: 2.5rem; } }
+
+        .input-field {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background-color: #ffffff;
+            border: 1px solid rgba(139, 94, 52, 0.2);
+            border-radius: 0.75rem;
+            color: #121A11;
+            font-size: 0.75rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .input-field:focus {
+            border-color: #8B5E34;
+            box-shadow: 0 0 20px rgba(139, 94, 52, 0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #8B5E34;
+            color: #F4F6F4;
+            font-weight: 900;
+            border-radius: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            font-size: 0.625rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-submit:hover { background-color: #724c29; box-shadow: 0 0 25px rgba(139, 94, 52, 0.3); }
+        .btn-submit:active { transform: scale(0.99); }
+        
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .min-h-screen { min-height: 100vh; }
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen relative antialiased">  
+    
+    <!-- Ambient Micro-Glow Spheres -->
+    <div style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;">
+        <div style="position: absolute; top: -20%; left: -10%; width: 800px; height: 800px; background: rgba(139, 94, 52, 0.08); border-radius: 50%; filter: blur(140px);"></div>
+    </div>
+
+    <!-- MAIN TERMINAL CARD -->
+    <div class="gateway-card">
+        
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, rgba(40, 24, 10, 0.4), transparent);"></div>
+        
+        <!-- Header Identity -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div class="flex justify-center items-center" style="margin-bottom: 0.75rem;">
+                <img src="{{ url_for('static', filename='lego.png') }}" alt="Legozia" style="height: 1.5rem; width: auto; opacity: 0.9;" />
+            </div>
+            <p style="font-size: 0.5625rem; letter-spacing: 0.3em; color: #8B5E34; text-transform: uppercase; font-weight: 900;">
+                Infrastructure Access Terminal
+            </p>
+        </div>
+
+        <!-- ERROR HANDLING PLATFORM -->
+        {% with messages = get_flashed_messages(category_filter=["error"]) %}
+            {% if messages %}
+                <div style="margin-bottom: 1.5rem;">
+                    {% for message in messages %}
+                    <div style="padding: 0.875rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; font-size: 0.75rem; border-radius: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <span>⚠️</span>
+                        <span style="font-weight: 500;">{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- CREDENTIAL ENGINES ACTION ROUTE -->
+        <form action="/login" method="POST" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.375rem;">
+                <label style="font-size: 0.5625rem; text-transform: uppercase; letter-spacing: 0.2em; color: #121A11; opacity: 0.7; font-weight: 700;">Terminal ID</label>
+                <input type="text" name="username" required placeholder="Enter administrative ID" class="input-field">
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.375rem;">
+                <label style="font-size: 0.5625rem; text-transform: uppercase; letter-spacing: 0.2em; color: #121A11; opacity: 0.7; font-weight: 700;">Security Passkey</label>
+                <div class="relative">
+                    <input id="pass_input" type="password" name="password" required placeholder="••••••••" class="input-field" style="letter-spacing: 0.1em;">
+                    
+                    <button type="button" onclick="togglePassVisibility()" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #8B5E34;">
+                        <svg id="eye_closed" xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg id="eye_open" class="hidden" xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.333-3.669m4.846-1.579C10.74 6.273 11.365 6 12 6c4.478 0 8.268 2.943 9.542 7-.428 1.36-1.127 2.62-2.053 3.738M13.875 18.825L21 21M9.828 9.828a3 3 0 104.243 4.243m1.415-1.415L9.828 9.828z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div style="padding-top: 0.5rem;">
+                <button type="submit" class="btn-submit">
+                    Authorize Access
+                </button>
+            </div>
+        </form>
+
+        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid rgba(139, 94, 52, 0.15);">
+            <a href="/" style="font-size: 0.5625rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.2em; color: #8B5E34; text-decoration: none;">
+                Abort Terminal Connection
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function togglePassVisibility() {
+            const input = document.getElementById('pass_input');
+            const eyeClosed = document.getElementById('eye_closed');
+            const eyeOpen = document.getElementById('eye_open');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeClosed.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
+            } else {
+                input.type = 'password';
+                eyeClosed.classList.remove('hidden');
+                eyeOpen.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

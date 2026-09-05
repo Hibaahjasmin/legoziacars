@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ darkMode: true }" :class="{ 'dark': darkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Dynamic Title for SEO -->
+    <title>{% block title %}Legozia | Premium Automotive Solutions{% endblock %}</title>
+    
+    <!-- Standard SEO Meta (Required for Google Search Snippets) -->
+    <meta name="description" content="{% block meta_description %}Explore our collection of quality pre-owned vehicles at Legozia Automotive. Find your next car today.{% endblock %}">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{% block og_title %}Legozia Automotive - Featured Vehicles{% endblock %}" />
+    <meta property="og:description" content="{% block og_description %}Explore our collection of quality pre-owned vehicles.{% endblock %}" />
+    <meta property="og:image" content="{% block og_image %}{{ request.url_root.rstrip('/') }}/static/lego.png{% endblock %}" />
+    <meta property="og:url" content="{{ request.url }}" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Legozia Automotive{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Explore our collection of quality pre-owned vehicles.{% endblock %}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='lego.png') }}">
+    
+    <!-- Scripts & Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Oswald', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brandDark: '#1a1d24',
+                        brandCard: '#242932',
+                    }
+                }
+            }
+        }
+    </script>
+ <style>
+        :root { --bg-dark: #121417; }
+
+        #preloader {
+            position: fixed;
+            inset: 0;
+            background-color: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        #preloader.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(36, 41, 50, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        html { scroll-behavior: smooth; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body x-data="{ 
+        open: false, 
+        selectedCar: { images: [] }, 
+        activeImageIndex: 0,
+        emiOpen: true,
+        downPaymentPercent: 15,
+        interestRate: 9.5,
+        tenureMonths: 60,
+        
+        getCleanPrice() {
+            if (!this.selectedCar.price) return 0;
+            let raw = String(this.selectedCar.price).replace(/[₹,]/g, '').trim();
+            if (raw.toLowerCase().includes('lakh')) {
+                return parseFloat(raw) * 100000;
+            }
+            return parseFloat(raw) || 0;
+        },
+        getLoanAmount() {
+            let principal = this.getCleanPrice();
+            return Math.round(principal * (1 - (this.downPaymentPercent / 100)));
+        },
+        calculateEMI() {
+            let P = this.getLoanAmount();
+            let annualRate = this.interestRate;
+            let N = this.tenureMonths;
+            
+            if (P <= 0) return 0;
+            let r = (annualRate / 12) / 100; 
+            if (r === 0) return Math.round(P / N);
+            
+            let emi = (P * r * Math.pow(1 + r, N)) / (Math.pow(1 + r, N) - 1);
+            return Math.round(emi);
+        }
+      }" 
+      @open-modal.window="open = true; selectedCar = window.allCars.find(c => c.id == $event.detail.id) || { images: [] }; activeImageIndex = 0; emiOpen = true;" 
+      class="bg-[#E5E0D8] text-[#121A11] font-sans antialiased selection:bg-[#8B5E34] selection:text-[#F4F6F4]">
+<!-- Preloader -->
+<div id="preloader">
+    <div class="relative flex items-center gap-3">
+        <img src="{{ url_for('static', filename='lego.png') }}" alt="Legozia Logo" class="h-10 sm:h-12 w-auto object-contain animate-pulse">
+        <span class="font-heading text-3xl sm:text-4xl tracking-widest text-[#D8D2C6] uppercase font-black">LEGOZIA</span>
+    </div>
+</div>
+<!-- HERO SECTION -->
+<div class="relative min-h-screen flex flex-col justify-between overflow-hidden bg-[#121417] text-[#D8D2C6]">
+    <div class="absolute inset-0 z-0">
+<img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1920&q=80" alt="Bright Modern Car Dealership Showroom" class="w-full h-full object-cover object-center" />        <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#121417]"></div>
+    </div>
+    <!-- HEADER NAVIGATION -->
+    <header class="relative z-20 w-full pt-6 sm:pt-8 px-4 sm:px-12">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <div x-data="{ 
+                    clicks: 0, 
+                    timer: null,
+                    handleSecretClick() {
+                        this.clicks++;
+                        clearTimeout(this.timer);
+                        if (this.clicks === 3) {
+                            this.clicks = 0;
+                            window.location.href = '/login';
+                        } else {
+                            this.timer = setTimeout(() => { this.clicks = 0; }, 1000);
+                        }
+                    }
+                 }" class="flex items-center shrink-0">
+                <div @click="handleSecretClick()" class="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group">
+                    <img src="{{ url_for('static', filename='lego.png') }}" alt="Legozia Logo" class="h-7 sm:h-10 w-auto object-contain group-hover:opacity-90 transition-opacity">
+                    <span class="font-heading text-xl sm:text-3xl tracking-wider text-[#D8D2C6] uppercase font-bold">LEGOZIA</span>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-5 sm:gap-10 shrink-0">
+                <a href="{{ url_for('about_page') }}" class="text-xs sm:text-sm font-medium text-[#D8D2C6] hover:text-[#71826B] transition-colors">About & Contact</a>
+                <a href="{{ url_for('home') }}#inventory" class="text-xs sm:text-sm font-medium text-[#D8D2C6] hover:text-[#71826B] transition-colors">Shop</a>
+                <a href="{{ url_for('sell_car') }}" class="text-xs sm:text-sm font-medium text-[#D8D2C6] hover:text-[#71826B] transition-colors">Sell</a>
+            {% if session.get('logged_in') %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="text-xs sm:text-sm font-medium text-[#D8D2C6] hover:text-[#71826B] transition-colors">
+                        Admin
+                    </a>
+                                {% endif %}
+            </nav>
+        </div>
+    </header>
+    <!-- HERO MAIN CONTENT -->
+    <main class="relative z-20 max-w-5xl mx-auto px-6 text-center my-auto py-20 flex flex-col items-center justify-center">
+        <h1 class="font-heading text-5xl sm:text-7xl md:text-8xl font-extrabold uppercase tracking-tight text-[#D8D2C6] leading-none max-w-4xl drop-shadow-2xl">
+            UNLEASH PURE AUTOMOTIVE POWER
+        </h1>
+        <p class="mt-6 text-sm sm:text-base text-[#D8D2C6]/90 font-light max-w-2xl leading-relaxed drop-shadow-md">
+            Experience handcrafted luxury vehicles engineered to dominate every road.
+        </p>
+        
+        <!-- DUAL CTA BUTTONS -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+            <a href="#inventory" class="w-full sm:w-auto inline-block bg-[#D8D2C6] hover:bg-[#E5E0D8] text-[#121417] font-semibold text-xs sm:text-sm tracking-wider uppercase px-8 py-3.5 rounded-full transition-all transform hover:scale-105 shadow-2xl">
+                EXPLORE MODELS
+            </a>
+            <a href="/sell" class="w-full sm:w-auto inline-flex items-center justify-center bg-transparent hover:bg-[#D8D2C6] hover:text-[#121417] text-[#D8D2C6] border-2 border-[#D8D2C6] font-semibold text-xs sm:text-sm tracking-wider uppercase px-8 py-3.5 rounded-full transition-all duration-300">
+                SELL YOUR CAR
+            </a>
+        </div>
+    </main>
+    <div class="relative z-20 pb-12"></div>
+</div>
+<!-- INVENTORY FILTER SECTION (BEIGE PALETTE) -->
+<div id="inventory-filter" class="py-6 bg-[#D8D2C6] px-4 sm:px-8 border-y border-[#8B5E34]/25"
+     x-data="{
+         selectedCar: '',
+         selectedFuel: '',
+         selectedTransmission: '',
+         minPrice: 0,
+         maxPrice: 50000000,
+         applyFilters() {
+             $dispatch('filter-updated', {
+                 car: this.selectedCar.toLowerCase(),
+                 fuel: this.selectedFuel.toLowerCase(),
+                 transmission: this.selectedTransmission.toLowerCase(),
+                 minPrice: Number(this.minPrice),
+                 maxPrice: Number(this.maxPrice)
+             });
+         },
+         resetFilters() {
+             this.selectedCar = ''; this.selectedFuel = ''; this.selectedTransmission = '';
+             this.minPrice = 0; this.maxPrice = 50000000;
+             this.applyFilters();
+         }
+     }">
+    
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        
+        <!-- SEARCH INPUT WITH ICON -->
+        <div class="relative flex-grow max-w-md">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#8B5E34]">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <input type="text" 
+                   x-model="selectedCar" 
+                   @input="applyFilters()"
+                   placeholder="Search make or model (e.g. BMW, Thar, Creta)..." 
+                   class="w-full bg-[#E2DCCE] border border-[#8B5E34]/30 text-[#121A11] placeholder-[#121A11]/50 text-xs pl-9 pr-8 py-2.5 focus:outline-none focus:border-[#8B5E34] transition-all rounded-lg font-medium">
+            
+            <button x-show="selectedCar.length > 0" 
+                    @click="selectedCar = ''; applyFilters()" 
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-[#121A11]/50 hover:text-[#8B5E34] text-xs font-mono">
+                ✕
+            </button>
+        </div>
+
+        <!-- FILTER TOGGLES & EXPANDED PRICE RANGE -->
+        <div class="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
+            
+            <!-- POWERTRAIN PILLS -->
+            <div class="flex items-center bg-[#E2DCCE] border border-[#8B5E34]/30 p-1 rounded-lg shrink-0">
+                <button @click="selectedFuel = ''; applyFilters()"
+                        :class="selectedFuel === '' ? 'bg-[#8B5E34] text-[#F4F6F4] shadow-sm' : 'text-[#121A11]/70 hover:text-[#121A11]'"
+                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all rounded">
+                    All
+                </button>
+                <button @click="selectedFuel = (selectedFuel === 'petrol' ? '' : 'petrol'); applyFilters()"
+                        :class="selectedFuel === 'petrol' ? 'bg-[#8B5E34] text-[#F4F6F4] shadow-sm' : 'text-[#121A11]/70 hover:text-[#121A11]'"
+                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all rounded">
+                    Petrol
+                </button>
+                <button @click="selectedFuel = (selectedFuel === 'diesel' ? '' : 'diesel'); applyFilters()"
+                        :class="selectedFuel === 'diesel' ? 'bg-[#8B5E34] text-[#F4F6F4] shadow-sm' : 'text-[#121A11]/70 hover:text-[#121A11]'"
+                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all rounded">
+                    Diesel
+                </button>
+                <button @click="selectedFuel = (selectedFuel === 'ev' ? '' : 'ev'); applyFilters()"
+                        :class="selectedFuel === 'ev' ? 'bg-[#8B5E34] text-[#F4F6F4] shadow-sm' : 'text-[#121A11]/70 hover:text-[#121A11]'"
+                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all rounded">
+                    EV
+                </button>
+            </div>
+
+            <!-- GEARBOX PILLS -->
+            <div class="flex items-center bg-[#E2DCCE] border border-[#8B5E34]/30 p-1 rounded-lg shrink-0">
+                <button @click="selectedTransmission = ''; applyFilters()"
+                        :class="selectedTransmission === '' ? 'bg-[#8B5E34] text-[#F4F6F4] shadow-sm' : 'text-[#121A11]/70 hover:text-[#121A11]'"
+                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all rounded">
+                    All
+                </button>
+                <button @click="selectedTransmission = (selectedTransmission === 'automatic' ? '' : 'automatic'); applyFilters()"
+                        :class="selectedTransmission === 'automatic' ? 'bg-[#8B5E34] text-[#F4F6F4] shadow-sm' : 'text-[#121A11]/70 hover:text-[#121A11]'"
+                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all rounded">
+                    Auto
+                </button>
+                <button @click="selectedTransmission = (selectedTransmission === 'manual' ? '' : 'manual'); applyFilters()"
+                        :class="selectedTransmission === 'manual' ? 'bg-[#8B5E34] text-[#F4F6F4] shadow-sm' : 'text-[#121A11]/70 hover:text-[#121A11]'"
+                        class="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all rounded">
+                    Manual
+                </button>
+            </div>
+
+            <!-- EXPANDED BUDGET DROPDOWN -->
+            <select x-model="maxPrice" @change="applyFilters()" class="bg-[#E2DCCE] border border-[#8B5E34]/30 px-3 py-2 text-[10px] font-black text-[#121A11] uppercase tracking-wider focus:outline-none focus:border-[#8B5E34] transition-all rounded-lg cursor-pointer shrink-0">
+                <option value="50000000" class="bg-[#E2DCCE]">Budget: All</option>
+                <option value="500000" class="bg-[#E2DCCE]">Under ₹5 Lakh</option>
+                <option value="1000000" class="bg-[#E2DCCE]">Under ₹10 Lakh</option>
+                <option value="1500000" class="bg-[#E2DCCE]">Under ₹15 Lakh</option>
+                <option value="2000000" class="bg-[#E2DCCE]">Under ₹20 Lakh</option>
+                <option value="3000000" class="bg-[#E2DCCE]">Under ₹30 Lakh</option>
+                <option value="5000000" class="bg-[#E2DCCE]">Under ₹50 Lakh</option>
+                <option value="10000000" class="bg-[#E2DCCE]">Under ₹1 Crore</option>
+            </select>
+
+            <!-- RESET LINK -->
+            <button @click="resetFilters()" class="text-[10px] font-black uppercase tracking-wider text-[#8B5E34] hover:text-[#121A11] transition-colors shrink-0 px-2 py-1.5">
+                Reset
+            </button>
+
+        </div>
+    </div>
+</div>
+<!-- INVENTORY GRID SECTION -->
+<section id="inventory" class="py-12 bg-[#E5E0D8]"
+         x-data="{ activeFilters: { car: '', fuel: '', transmission: '', minPrice: 0, maxPrice: 50000000 } }"
+         @filter-updated.window="activeFilters = $event.detail">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 w-full">
+        <!-- CENTERED SECTION TITLE -->
+        <div class="text-center mb-10">
+            <h2 class="text-xl sm:text-2xl font-black text-[#8B5E34] tracking-wider uppercase font-heading">Featured Collection</h2>
+            <p class="text-[10px] text-[#121A11]/60 font-mono uppercase tracking-widest mt-1">Handpicked & Verified Units</p>
+            <div class="w-12 h-0.5 bg-[#8B5E34] mx-auto mt-3"></div>
+        </div>
+
+        <!-- 5-COLUMN MEDIUM GRID -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {% for car in cars %}
+            <div @click="$dispatch('open-modal', { id: '{{ car.id }}' })"
+                 x-data="{
+                     carTitle: '{{ car.brand|default('') }} {{ car.model|default('') }}'.toLowerCase(),
+                     carFuel: '{{ car.fuel|default('') }}'.toLowerCase(),
+                     carTrans: '{{ car.transmission|default('') }}'.toLowerCase(),
+                     carPrice: Number(String('{{ car.price }}').replace(/[^0-9.]/g, '')) || 0
+                 }"
+                 x-show="(activeFilters.car === '' || carTitle.includes(activeFilters.car.toLowerCase())) &&
+                         (activeFilters.fuel === '' || carFuel === activeFilters.fuel.toLowerCase()) &&
+                         (activeFilters.transmission === '' || carTrans === activeFilters.transmission.toLowerCase()) &&
+                         (carPrice >= activeFilters.minPrice && carPrice <= activeFilters.maxPrice)"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 class="group bg-[#D8D2C6] border border-[#8B5E34]/30 rounded-b-xl cursor-pointer overflow-hidden shadow-md flex flex-col">
+                
+                <!-- SQUARE IMAGE CONTAINER -->
+                <!-- SQUARE IMAGE CONTAINER -->
+<!-- SQUARE IMAGE CONTAINER -->
+<div class="relative w-full aspect-[16/10] bg-[#E2DCCE] overflow-hidden">
+    {% if car.images and car.images|length > 0 %}
+        <img src="/static/{{ car.images[0].image_path }}" 
+             alt="{{ car.brand }} {{ car.model }}" 
+             loading="lazy" 
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image+Available';"
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out">
+    {% else %}
+        <!-- Fallback Placeholder -->
+        <div class="w-full h-full flex flex-col items-center justify-center bg-[#D8D2C6] text-[#8B5E34]">
+            <svg class="w-8 h-8 opacity-40 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <span class="text-[9px] font-mono uppercase tracking-widest opacity-60">No Image</span>
+        </div>
+    {% endif %}
+
+    <span class="absolute top-2 left-2 text-[9px] font-mono bg-[#121A11]/80 text-[#D8D2C6] px-1.5 py-0.5 rounded-none border border-[#8B5E34]/30">
+        {{ car.year }}
+    </span>
+</div>
+                <!-- ROUNDED DETAIL CONTAINER -->
+                <div class="p-3 flex flex-col justify-between flex-grow bg-[#D8D2C6] rounded-b-xl">
+                    <div>
+                        <h3 class="text-xs sm:text-xs font-bold text-[#121A11] truncate">
+                            {{ car.brand }} {{ car.model }}
+                        </h3>
+                        <p class="text-xs font-mono font-bold text-[#8B5E34] mt-0.5">
+                            {% if '₹' in car.price|string %}
+                                {{ car.price }}
+                            {% else %}
+                                ₹{{ car.price }}
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-between text-[10px] text-[#121A11]/70 mt-2.5 pt-2 border-t border-[#8B5E34]/20">
+                        <div class="flex items-center gap-1 truncate pr-1">
+                            <span class="truncate">{{ car.fuel }}</span>
+                            <span>•</span>
+                            <span class="truncate">{{ car.transmission }}</span>
+                        </div>
+                        
+                        <!-- ROUNDED DETAILS BUTTON -->
+                        <button type="button" class="shrink-0 bg-[#E2DCCE] group-hover:bg-[#8B5E34] group-hover:text-[#F4F6F4] text-[#121A11] text-[9px] font-black uppercase tracking-wider px-2 py-1 border border-[#8B5E34]/30 transition-all duration-200 rounded-md">
+                            Details
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+<!-- Detailed View Modal -->
+<div @keydown.escape.window="open = false" x-show="open" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+    <div class="flex items-center justify-center min-h-screen px-3 pt-3 pb-12 text-center sm:block sm:p-0">
+        
+        <!-- Backdrop Overlay -->
+        <div x-show="open" x-transition.opacity.duration.300ms class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div @click="open = false" class="absolute inset-0 bg-[#121A11]/80 backdrop-blur-md"></div>
+        </div>
+
+        <!-- Modal Card -->
+        <div x-show="open" 
+             x-transition:enter="transition ease-out duration-300 transform" 
+             x-transition:enter-start="opacity-0 scale-95" 
+             x-transition:enter-end="opacity-100 scale-100" 
+             class="relative inline-block align-bottom bg-[#E5E0D8] rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-6 sm:align-middle sm:max-w-5xl sm:w-full p-4 sm:p-6 border border-[#8B5E34]/30">
+            
+            <!-- Enhanced Close Button (Visible & Minimal) -->
+            <button @click="open = false" class="absolute top-3 right-3 sm:top-4 sm:right-5 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[#D8D2C6] hover:bg-[#8B5E34] text-[#121A11] hover:text-[#F4F6F4] border border-[#8B5E34]/30 rounded-full text-lg font-bold transition-all z-20 focus:outline-none shadow-sm cursor-pointer">
+                &times;
+            </button>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 mt-1">
+                
+                <!-- Left Column: Gallery, Specs & Remarks (7 Cols) -->
+<div class="lg:col-span-7 space-y-3 sm:space-y-4">
+    
+    <!-- Main Display Image -->
+    <div class="relative bg-[#D8D2C6] aspect-[16/10] w-full rounded-xl overflow-hidden border border-[#8B5E34]/30 shadow-inner">
+        <img :src="'/static/' + (selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex])" 
+             class="w-full h-full object-cover transition-all duration-500" 
+             :alt="selectedCar.model">
+        <div class="absolute bottom-2.5 right-2.5 bg-[#121A11]/90 backdrop-blur-md text-[#8B5E34] text-[10px] px-2 py-0.5 rounded font-mono font-bold tracking-widest border border-[#8B5E34]/30">
+            <span x-text="activeImageIndex + 1"></span>/<span x-text="selectedCar.images.length"></span>
+        </div>
+    </div>
+
+    <!-- Thumbnails Carousel -->
+    <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar items-center">
+        <template x-for="(img, idx) in selectedCar.images" :key="idx">
+            <button @click="activeImageIndex = idx" 
+                    class="relative w-14 h-10 sm:w-20 sm:h-12 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all duration-300"
+                    :class="activeImageIndex === idx ? 'border-[#8B5E34] scale-95 shadow-[0_0_10px_rgba(139,94,52,0.3)]' : 'border-[#8B5E34]/20 opacity-60 hover:opacity-100'">
+                <img :src="'/static/' + (img.image_path || img)" class="w-full h-full object-cover">
+            </button>
+        </template>
+    </div>
+
+
+                    <!-- Key Spec Badges -->
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="p-2 sm:p-2.5 bg-[#D8D2C6] border border-[#8B5E34]/20 rounded-lg text-center flex flex-col items-center justify-center">
+                            <span class="text-[7px] sm:text-[8px] text-[#121A11]/60 block uppercase font-bold tracking-widest">Year</span>
+                            <span class="text-xs font-bold text-[#121A11] mt-0.5" x-text="selectedCar.year"></span>
+                        </div>
+                        <div class="p-2 sm:p-2.5 bg-[#D8D2C6] border border-[#8B5E34]/20 rounded-lg text-center flex flex-col items-center justify-center">
+                            <span class="text-[7px] sm:text-[8px] text-[#121A11]/60 block uppercase font-bold tracking-widest">Kilometer</span>
+                            <span class="text-xs font-bold text-[#121A11] mt-0.5 truncate w-full" x-text="selectedCar.mileage"></span>
+                        </div>
+                        <div class="p-2 sm:p-2.5 bg-[#D8D2C6] border border-[#8B5E34]/20 rounded-lg text-center flex flex-col items-center justify-center">
+                            <span class="text-[7px] sm:text-[8px] text-[#121A11]/60 block uppercase font-bold tracking-widest">Fuel</span>
+                            <span class="text-xs font-bold text-[#121A11] mt-0.5 truncate w-full" x-text="selectedCar.fuel"></span>
+                        </div>
+                        <div class="p-2 sm:p-2.5 bg-[#D8D2C6] border border-[#8B5E34]/20 rounded-lg text-center flex flex-col items-center justify-center">
+                            <span class="text-[7px] sm:text-[8px] text-[#121A11]/60 block uppercase font-bold tracking-widest">Trans</span>
+                            <span class="text-xs font-bold text-[#121A11] mt-0.5 truncate w-full" x-text="selectedCar.transmission"></span>
+                        </div>
+                    </div>
+
+                    <!-- Compact Remarks Panel -->
+                    <div class="bg-[#D8D2C6] border border-[#8B5E34]/20 rounded-lg p-3 text-xs">
+                        <div class="flex justify-between items-center pb-1.5 mb-1.5 border-b border-[#8B5E34]/20 text-[11px]">
+                            <span class="text-[#121A11]/70 font-medium">Inspection Grade</span>
+                            <span class="font-bold text-[#8B5E34]">★ 100-Point Passed</span>
+                        </div>
+                        <p class="text-[11px] text-[#121A11]/80 leading-snug line-clamp-2" x-text="selectedCar.description"></p>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Title, Price, EMI & Inquiry Form (5 Cols) -->
+                <div class="lg:col-span-5 space-y-3 flex flex-col justify-between">
+                    
+                    <div class="space-y-3">
+                        <!-- Vehicle Title & Price Badge -->
+                        <div class="bg-[#D8D2C6] border border-[#8B5E34]/20 rounded-xl p-3 sm:p-3.5">
+                            <span class="text-[#8B5E34] font-bold uppercase tracking-widest text-[8px]" x-text="selectedCar.year + ' Model Lineup'"></span>
+                            <h2 class="text-base sm:text-lg font-black text-[#121A11] mt-0.5 leading-tight pr-6" x-text="selectedCar.brand + ' ' + selectedCar.model"></h2>
+                            <div class="mt-2 pt-2 border-t border-[#8B5E34]/20 flex items-baseline justify-between">
+                                <span class="text-[10px] text-[#121A11]/70 font-medium uppercase">Showroom Price</span>
+                                <span class="text-base font-black text-[#8B5E34]" x-text="selectedCar.price"></span>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic EMI Accordion -->
+                        <div class="bg-[#D8D2C6] border border-[#8B5E34]/20 rounded-xl overflow-hidden">
+                            <button @click="emiOpen = !emiOpen" class="w-full px-3.5 py-2.5 flex items-center justify-between text-left bg-[#E2DCCE]">
+                                <div class="flex items-center gap-2">
+                                    <div>
+                                        <h4 class="text-[9px] font-bold text-[#8B5E34] uppercase tracking-widest">EMI Calculator</h4>
+                                        <p class="text-[9px] font-bold text-[#121A11]" x-show="emiOpen && getCleanPrice() > 0">Est: ₹<span class="text-[#8B5E34] font-extrabold" x-text="calculateEMI().toLocaleString('en-IN')"></span>/mo</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] text-[#121A11]/60 transition-transform duration-300" :class="emiOpen ? 'rotate-180' : ''">▼</span>
+                            </button>
+
+                            <div x-show="emiOpen" x-transition class="p-3 bg-[#D8D2C6] space-y-2.5 text-[10px]">
+                                <template x-if="getCleanPrice() > 0">
+                                    <div class="space-y-2.5">
+                                        <div>
+                                            <div class="flex justify-between font-bold text-[#121A11]/70 uppercase tracking-widest mb-1 text-[8px]">
+                                                <span>Down Payment: <strong class="text-[#121A11]" x-text="downPaymentPercent + '%'"></strong></span>
+                                            </div>
+                                            <input type="range" min="10" max="70" step="5" x-model="downPaymentPercent" class="w-full accent-[#8B5E34] bg-[#E5E0D8] h-1 rounded appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between font-bold text-[#121A11]/70 uppercase tracking-widest mb-1 text-[8px]">
+                                                <span>Interest Rate: <strong class="text-[#121A11]" x-text="interestRate + '%'"></strong></span>
+                                            </div>
+                                            <input type="range" min="7.5" max="16.0" step="0.25" x-model="interestRate" class="w-full accent-[#8B5E34] bg-[#E5E0D8] h-1 rounded appearance-none cursor-pointer">
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between font-bold text-[#121A11]/70 uppercase tracking-widest mb-1 text-[8px]">
+                                                <span>Tenure: <strong class="text-[#121A11]" x-text="(tenureMonths / 12) + ' Years'"></strong></span>
+                                            </div>
+                                            <input type="range" min="12" max="84" step="12" x-model="tenureMonths" class="w-full accent-[#8B5E34] bg-[#E5E0D8] h-1 rounded appearance-none cursor-pointer">
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Direct Inquiry Form -->
+                      <form action="/submit-inquiry" method="POST" class="bg-[#D8D2C6] border border-[#8B5E34]/20 rounded-xl p-3.5 space-y-2 text-left">
+    <input type="hidden" name="type" value="Car Inquiry">
+    <input type="hidden" name="car_name" :value="selectedCar.brand + ' ' + selectedCar.model">
+    <input type="hidden" name="timestamp" id="car_inquiry_timestamp">
+
+    <div class="grid grid-cols-2 gap-2">
+        <div class="space-y-0.5">
+            <label class="block text-[7px] font-bold text-[#121A11]/60 uppercase tracking-widest">Full Name</label>
+            <input type="text" name="name" required placeholder="John Doe" 
+                   class="w-full px-2 py-1.5 bg-[#E5E0D8] border border-[#8B5E34]/30 rounded text-[#121A11] text-[11px] outline-none focus:border-[#8B5E34]">
+        </div>
+        <div class="space-y-0.5">
+            <label class="block text-[7px] font-bold text-[#121A11]/60 uppercase tracking-widest">Phone</label>
+            <input type="tel" name="phone" required placeholder="+91 90000 00000" 
+                   class="w-full px-2 py-1.5 bg-[#E5E0D8] border border-[#8B5E34]/30 rounded text-[#121A11] text-[11px] outline-none focus:border-[#8B5E34]">
+        </div>
+    </div>
+
+    <!-- NEW MESSAGE INPUT BOX -->
+    <div class="space-y-0.5">
+        <label class="block text-[7px] font-bold text-[#121A11]/60 uppercase tracking-widest">Message (Optional)</label>
+        <textarea name="message" rows="3" placeholder="Type your message or custom request here..." 
+                  class="w-full px-2 py-1.5 bg-[#E5E0D8] border border-[#8B5E34]/30 rounded text-[#121A11] text-[11px] outline-none focus:border-[#8B5E34] resize-none"></textarea>
+    </div>
+
+    <button type="submit" 
+            onclick="document.getElementById('car_inquiry_timestamp').value = new Date().toISOString()" 
+            class="w-full h-8 mt-1 flex items-center justify-center bg-[#8B5E34] text-[#F4F6F4] font-black tracking-widest uppercase text-[9px] rounded transition-all hover:bg-[#121A11] shadow-sm cursor-pointer">
+        <span>Send Inquiry</span>
+    </button>
+</form>
+                    </div>
+
+                    <!-- Quick Action Buttons -->
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <a href="tel:+919061269268" class="text-center py-2 bg-[#D8D2C6] border border-[#8B5E34]/30 text-[#121A11] rounded font-bold text-[8px] uppercase tracking-widest hover:border-[#8B5E34] transition-colors">📞 Call Desk</a>
+                        <button type="button" 
+                                @click="openCarWhatsApp(selectedCar)"
+                                class="text-center py-2 bg-[#D8D2C6] border border-[#8B5E34]/30 text-[#121A11] rounded font-bold text-[8px] uppercase tracking-widest hover:border-[#8B5E34] transition-colors cursor-pointer">
+                            💬 WhatsApp
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Footer -->
+<footer role="contentinfo" class="w-full bg-[#EAE6DF] text-[#121A11] border-t border-[#8B5E34]/20 font-sans transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-6 sm:px-12 pt-16 pb-12">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12">
+            
+            <!-- BRAND & BRIEF CONTACT -->
+            <div class="md:col-span-5 space-y-6">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-black tracking-wider text-[#121A11] uppercase">Legozia</h2>
+                </div>
+
+                <p class="text-xs sm:text-sm text-[#121A11]/70 font-medium leading-relaxed max-w-sm">
+                    Your journey to a refined driving experience begins with a conversation. Visit our studio or connect with our specialists today.
+                </p>
+
+                <div class="space-y-3 text-xs sm:text-sm font-semibold">
+                    <a href="mailto:info@legozia.com" class="flex items-center gap-3 text-[#121A11] hover:text-[#8B5E34] transition-colors">
+                        <svg class="w-4 h-4 text-[#8B5E34]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <span>info@legozia.com</span>
+                    </a>
+                    <a href="tel:+919061269268" class="flex items-center gap-3 text-[#121A11] hover:text-[#8B5E34] transition-colors">
+                        <svg class="w-4 h-4 text-[#8B5E34]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        <span>+91 90612 69268</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- COMPANY NAVIGATION -->
+            <div class="md:col-span-3 space-y-4">
+                <h3 class="text-xs font-mono font-extrabold text-[#8B5E34] tracking-wider uppercase">Company</h3>
+                <ul class="space-y-2.5 text-xs sm:text-sm font-semibold text-[#121A11]/80">
+    <li><a href="{{ url_for('about_page') }}" class="hover:text-[#8B5E34] transition-colors">About & Contact</a></li>
+    <li><a href="{{ url_for('home') }}#inventory" class="hover:text-[#8B5E34] transition-colors">Browse Cars</a></li>
+    <li><a href="{{ url_for('sell_car') }}" class="hover:text-[#8B5E34] transition-colors">Sell Your Car</a></li>
+    <li><a href="https://maps.app.goo.gl/PLVKGXFvdjGhMFM3A" target="_blank" class="hover:text-[#8B5E34] transition-colors">Our Showroom</a></li>
+    </ul>
+            </div>
+
+            <!-- SHOWROOM LOCATION -->
+            <div class="md:col-span-4 space-y-4">
+                <h3 class="text-xs font-mono font-extrabold text-[#8B5E34] tracking-wider uppercase">Showroom Location</h3>
+                <a href="https://maps.app.goo.gl/PLVKGXFvdjGhMFM3A" target="_blank" class="flex items-start gap-2.5 text-[#121A11]/80 hover:text-[#8B5E34] transition-colors leading-relaxed text-xs sm:text-sm font-semibold group">
+                    <svg class="w-4 h-4 text-[#8B5E34] shrink-0 mt-0.5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Ponniakurussi, Perinthalmanna, Malappuram, Kerala 679322</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="border-t border-[#8B5E34]/15 bg-[#EAE6DF]/60">
+        <div class="max-w-7xl mx-auto px-6 sm:px-12 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-semibold text-[#121A11]/70">
+            <p>&copy; 2026 LEGOZIA CARS. All rights reserved.</p>
+            <div class="flex items-center gap-6">
+                <a href="/login" class="hover:text-[#8B5E34] transition-colors">Admin Portal</a>
+                <a href="#" class="hover:text-[#8B5E34] transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-[#8B5E34] transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js" defer></script>
+
+<script>
+
+// Fallback to empty list [] if cars_data is missing
+    window.allCars = {{ (cars_data or []) | tojson }};
+    // 2. Register Alpine component with window.allCars linked
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('carStore', () => ({
+            open: false,
+            cars: window.allCars || [], // Wire window.allCars directly
+            selectedCar: {},
+            activeImageIndex: 0,
+            emiOpen: false,
+
+            init() {
+                // Check hash on load
+                this.checkUrlHash();
+
+                // Listen for hash changes
+                window.addEventListener('hashchange', () => this.checkUrlHash());
+            },
+
+            checkUrlHash() {
+                const hash = window.location.hash;
+                if (hash.startsWith('#car-')) {
+                    const carId = parseInt(hash.replace('#car-', ''), 10);
+                    const targetCar = this.cars.find(c => Number(c.id) === carId);
+                    
+                    if (targetCar) {
+                        this.openModal(targetCar);
+                    }
+                }
+            },
+
+            openModal(car) {
+                this.selectedCar = car;
+                this.activeImageIndex = 0;
+                this.open = true;
+            }
+        }));
+    });
+
+    // 3. WhatsApp Share Function
+    function openCarWhatsApp(car) {
+        if (!car) {
+            console.error("Car object is missing");
+            return;
+        }
+
+        const carName = `${car.brand || ''} ${car.model || ''}`.trim() || 'Vehicle';
+        const carId = car.id || '';
+        const domain = window.location.origin;
+
+        const carUrl = carId ? `${domain}/car/${carId}` : domain;
+        const message = `Hi, I am interested in this vehicle: ${carName}\nView Details: ${carUrl}`;
+        const whatsappUrl = `https://wa.me/919061269268?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+    }
+
+    // 4. Page UI Loaders
+    document.addEventListener("DOMContentLoaded", () => {
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 500,
+                once: true,
+                disable: 'mobile',
+                easing: 'ease-in-out'
+            });
+        }
+    });
+
+    window.addEventListener('load', () => {
+        const loader = document.getElementById('preloader');
+        if (loader) {
+            loader.classList.add('fade-out');
+            setTimeout(() => loader.remove(), 500);
+        }
+    });
+</script>
+
+</body>
+</html>

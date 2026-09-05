@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+Flask-SocketIO
+Flask-Mail
+python-dotenv
+gunicorn
+eventlet
+psycopg2-binary
+werkzeug

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ darkMode: false }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Your Car | Legozia</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='lego.png') }}">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    screens: {
+                        'xs': '475px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<style>
+        :root {
+            --bg-canvas: #EFECE6;
+            --brand-brown: #7A5538;
+            --brand-dark-brown: #5C402B;
+            --text-main: #1A1A1A;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+      
+       
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-[#F4F6F4]">
+
+    <!-- Top Navigation Bar (Always Visible / Mobile Optimized) -->
+    <header class="w-full bg-[#A87B51] shadow-md sticky top-0 z-50 border-b border-[#8C643E]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-4 sm:py-5 flex items-center justify-between gap-4">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2 sm:gap-3 group shrink-0">
+                <img src="{{ url_for('static', filename='lego.png') }}" alt="LEGOZIA Logo" class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105">
+                <span class="text-xl sm:text-2xl font-black tracking-tighter uppercase text-[#F4F6F4]">LEGOZIA</span>
+            </a>
+            <nav class="flex items-center gap-5 sm:gap-10 text-xs sm:text-sm font-bold text-[#E2E8E2] shrink-0">
+                <a href="{{ url_for('about_page') }}" class="text-[#F4F6F4] transition-colors hover:text-[#71826B]">About & Contact</a>
+                <a href="{{ url_for('home') }}#inventory" class="transition-colors hover:text-[#71826B]">Shop</a>
+                <a href="{{ url_for('sell_car') }}" class="transition-colors hover:text-[#71826B]">Sell</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow relative" x-data="{ showToast: true }">
+
+    <!-- FLASH MESSAGE OVERLAY -->
+    <!-- FLASH MESSAGE OVERLAY (Centered & Site-Themed) -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div x-data="{ showToast: true }" 
+             x-init="setTimeout(() => showToast = false, 3000)" 
+             x-show="showToast" 
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-300 transform"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-4"
+             class="fixed top-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-[#5C402B] text-[#F4F6F4] px-6 py-3.5 rounded-xl shadow-2xl border-2 border-[#7A5538] max-w-md w-11/12 text-center justify-center">
+            
+            <!-- Icon -->
+            <svg class="w-5 h-5 text-[#EFECE6] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+
+            <!-- Text Content -->
+            <span class="text-xs font-black uppercase tracking-wider text-[#F4F6F4]">
+                {{ message }}
+            </span>
+        </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+        <!-- HERO SECTION -->
+        <section class="max-w-7xl mx-auto px-8 lg:px-16 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            <!-- LEFT TEXT: Sell Your Car Theme -->
+            <div class="lg:col-span-6 space-y-6">
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[1.05] text-[#121A11]">
+                    SELL YOUR<br>CAR WITH<br>CONFIDENCE.
+                </h1>
+
+                <p class="text-lg font-bold text-[#8B5E34]">
+                    Experience a seamless, high-end handover process.
+                </p>
+
+                <p class="text-sm sm:text-base text-[#121A11] leading-relaxed font-medium max-w-xl">
+                    Turn your passion into value. We provide transparent evaluations, secure ownership transfers, and instant closing for extraordinary machines—so you can upgrade your garage without the friction.
+                </p>
+
+                <!-- STATS -->
+                <div class="grid grid-cols-3 gap-6 pt-8 border-t border-[#71826B]">
+                    <div>
+                        <p class="text-2xl font-black text-[#121A11]">100%</p>
+                        <p class="text-[11px] uppercase font-mono text-[#8B5E34] font-extrabold mt-1">Verified Transfer</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-[#121A11]">4.7 ★</p>
+                        <p class="text-[11px] uppercase font-mono text-[#121A11] font-bold mt-1">Google Rating</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-black text-[#121A11]">Instant</p>
+                        <p class="text-[11px] uppercase font-mono text-[#8B5E34] font-extrabold mt-1">Best Valuation</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT EXACT KEY HANDOVER PHOTO -->
+            <div class="lg:col-span-6 w-full h-[480px] lg:h-[580px] relative rounded-2xl overflow-hidden shadow-2xl border-2 border-[#8B5E34]">
+                <img src="{{ url_for('static', filename='key.jpg') }}" 
+                     alt="Person holding Mercedes-Benz fob by Roland Denes" 
+                     class="w-full h-full object-cover">
+                
+                <!-- FLOATING OVERLAY CARD -->
+                <div class="absolute bottom-6 left-6 right-6 p-5 bg-[#8B5E34]/95 backdrop-blur-md rounded-xl border border-[#6E4826] flex items-center justify-between shadow-lg">
+                    <div>
+                        <p class="text-xs font-black text-[#F4F6F4] uppercase tracking-wider">Perinthalmanna Studio</p>
+                        <p class="text-[11px] text-[#E2E8E2] font-semibold mt-0.5">Seamless Key Handover • Zero Hassle</p>
+                    </div>
+                    <span class="text-[10px] font-mono text-[#F4F6F4] font-extrabold uppercase bg-[#92A38D]/25 px-3 py-1.5 rounded border border-[#92A38D]/40">
+                        LEGOZIA
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTERED VALUATION FORM SECTION -->
+        <section class="max-w-4xl mx-auto px-6 pb-20">
+            <div class="bg-white p-6 sm:p-10 rounded-2xl border border-gray-200 shadow-xl">
+                <div class="mb-8 text-center">
+                    <h2 class="text-2xl font-black uppercase tracking-tight text-gray-900">Vehicle Evaluation Form</h2>
+                    <p class="text-xs text-gray-500 mt-1 uppercase tracking-wider font-mono">Fill out your parameters for an instant appraisal</p>
+                </div>
+
+                <form action="{{ url_for('sell_car') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    
+                    <!-- Section 1: Contact Details -->
+                    <div class="border border-gray-100 p-4 sm:p-5 bg-gray-50/50 rounded-xl">
+                        <div class="flex items-center gap-2 mb-3 border-b border-gray-200 pb-2">
+                            <span class="text-[10px] font-mono font-bold text-[#7A5538]">01</span>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900">Personal Parameters</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Full Name *</label>
+                                <input type="text" name="name" required placeholder="John Doe" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Phone Number *</label>
+                                <input type="tel" name="phone" required placeholder="+91 90612 69268" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Email Address *</label>
+                                <input type="email" name="email" required placeholder="john@example.com" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Location / City *</label>
+                                <input type="text" name="place" required placeholder="Kochi, Kerala" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Vehicle Specifications -->
+                    <div class="border border-gray-100 p-4 sm:p-5 bg-gray-50/50 rounded-xl">
+                        <div class="flex items-center gap-2 mb-3 border-b border-gray-200 pb-2">
+                            <span class="text-[10px] font-mono font-bold text-[#7A5538]">02</span>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900">Vehicle Specifications</h3>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Brand *</label>
+                                <input type="text" name="brand" placeholder="e.g. Porsche" required class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Car Model *</label>
+                                <input type="text" name="car_model" placeholder="e.g. 911 GT3" required class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Variant</label>
+                                <input type="text" name="variant" placeholder="e.g. Touring" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                            <div>
+    <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Year *</label>
+    <input type="number" 
+           name="year" 
+           min="1900" 
+           max="2027" 
+           required 
+           placeholder="2023" 
+           class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+</div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">KM Driven *</label>
+                                <input type="text" name="km_driven" placeholder="12,000 km" required class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Fuel Type</label>
+                                <select name="fuel_type" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                                    <option value="Petrol">Petrol</option>
+                                    <option value="Diesel">Diesel</option>
+                                    <option value="Electric">Electric</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Transmission</label>
+                                <select name="transmission" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                                    <option value="Automatic">Automatic</option>
+                                    <option value="Manual">Manual</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Ownership</label>
+                                <input type="text" name="owners" placeholder="1st Owner" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Reg. No.</label>
+                                <input type="text" name="registration_number" placeholder="Optional" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Condition & Valuation -->
+                    <div class="border border-gray-100 p-4 sm:p-5 bg-gray-50/50 rounded-xl">
+                        <div class="flex items-center gap-2 mb-3 border-b border-gray-200 pb-2">
+                            <span class="text-[10px] font-mono font-bold text-[#7A5538]">03</span>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900">Condition & Pricing</h3>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Overall Condition</label>
+                                <select name="overall_condition" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                                    <option value="Excellent">Excellent (Showroom)</option>
+                                    <option value="Good">Good (Minor Wear)</option>
+                                    <option value="Fair">Fair (Visible Wear)</option>
+                                    <option value="Needs Work">Needs Work</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Accident History</label>
+                                <select name="accident_history" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                                    <option value="No Accidents">No Accidents</option>
+                                    <option value="Minor Damage Repaired">Minor Damage Repaired</option>
+                                    <option value="Major Damage Repaired">Major Damage Repaired</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Service Records</label>
+                                <select name="service_history" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                                    <option value="Full Dealer History">Full Dealer History</option>
+                                    <option value="Partial History">Partial History</option>
+                                    <option value="No History">No History</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1">Expected Price</label>
+                                <input type="text" name="expected_amount" placeholder="e.g. ₹ 85,00,000" class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Media Management -->
+                   <div class="border border-gray-100 p-4 sm:p-5 bg-gray-50/50 rounded-xl">
+    <div class="flex items-center justify-between mb-3 border-b border-gray-200 pb-2">
+        <div class="flex items-center gap-2">
+            <span class="text-[10px] font-mono font-bold text-[#7A5538]">04</span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-gray-900">Digital Registry & Gallery</h3>
+        </div>
+        <!-- Dynamic header count showing selected files -->
+        <div id="workspace_header" class="hidden text-[10px] font-mono font-bold text-[#7A5538] uppercase">
+            Selected: <span id="photo_count">0</span>/12
+        </div>
+    </div>
+    
+    <div class="space-y-3">
+        <!-- File Input Dropzone -->
+        <div class="relative border border-dashed border-gray-300 p-6 text-center bg-white hover:border-[#7A5538] transition-colors rounded-xl">
+            <input type="file" id="photo_input" name="photos" multiple accept="image/*" onchange="handleImageSelection(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+            <p class="text-xs font-semibold text-gray-900">Click or drag photos here</p>
+            <p class="text-[10px] text-gray-500 mt-0.5">Up to 12 high-resolution images • PNG, JPG, WEBP</p>
+        </div>
+
+        <!-- Preview Grid Workspace with Reordering Capability -->
+        <div id="grid_workspace" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+    </div>
+</div>
+
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-700 uppercase tracking-wider mb-1 mt-3">Additional Portfolio Details</label>
+                                <textarea name="message" rows="2" placeholder="Specify custom options or modifications..." class="w-full bg-white border border-gray-200 px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#7A5538] transition-colors rounded"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="pt-4 flex items-center justify-between border-t border-gray-200">
+                        <a href="{{ url_for('home') }}" class="text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:text-gray-900 transition-colors">
+                            ← Return Home
+                        </a>
+                        <button type="submit" class="px-6 py-2.5 bg-[#7A5538] text-white font-bold text-[10px] uppercase tracking-widest hover:bg-[#5C402B] transition-colors rounded">
+                            Submit Valuation
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </section>
+
+<footer role="contentinfo" class="w-full bg-[#EAE6DF] text-[#121A11] border-t border-[#8B5E34]/20 font-sans transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-6 sm:px-12 pt-16 pb-12">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12">
+            
+            <!-- BRAND & BRIEF CONTACT -->
+            <div class="md:col-span-5 space-y-6">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-black tracking-wider text-[#121A11] uppercase">Legozia</h2>
+                </div>
+
+                <p class="text-xs sm:text-sm text-[#121A11]/70 font-medium leading-relaxed max-w-sm">
+                    Your journey to a refined driving experience begins with a conversation. Visit our studio or connect with our specialists today.
+                </p>
+
+                <div class="space-y-3 text-xs sm:text-sm font-semibold">
+                    <a href="mailto:info@legozia.com" class="flex items-center gap-3 text-[#121A11] hover:text-[#8B5E34] transition-colors">
+                        <svg class="w-4 h-4 text-[#8B5E34]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <span>info@legozia.com</span>
+                    </a>
+                    <a href="tel:+919061269268" class="flex items-center gap-3 text-[#121A11] hover:text-[#8B5E34] transition-colors">
+                        <svg class="w-4 h-4 text-[#8B5E34]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        <span>+91 90612 69268</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- COMPANY NAVIGATION -->
+            <div class="md:col-span-3 space-y-4">
+                <h3 class="text-xs font-mono font-extrabold text-[#8B5E34] tracking-wider uppercase">Company</h3>
+                <ul class="space-y-2.5 text-xs sm:text-sm font-semibold text-[#121A11]/80">
+    <li><a href="{{ url_for('about_page') }}" class="hover:text-[#8B5E34] transition-colors">About & Contact</a></li>
+    <li><a href="{{ url_for('home') }}#inventory" class="hover:text-[#8B5E34] transition-colors">Browse Cars</a></li>
+    <li><a href="{{ url_for('sell_car') }}" class="hover:text-[#8B5E34] transition-colors">Sell Your Car</a></li>
+    <li><a href="https://maps.app.goo.gl/PLVKGXFvdjGhMFM3A" target="_blank" class="hover:text-[#8B5E34] transition-colors">Our Showroom</a></li>
+    </ul>
+            </div>
+
+            <!-- SHOWROOM LOCATION -->
+            <div class="md:col-span-4 space-y-4">
+                <h3 class="text-xs font-mono font-extrabold text-[#8B5E34] tracking-wider uppercase">Showroom Location</h3>
+                <a href="https://maps.app.goo.gl/PLVKGXFvdjGhMFM3A" target="_blank" class="flex items-start gap-2.5 text-[#121A11]/80 hover:text-[#8B5E34] transition-colors leading-relaxed text-xs sm:text-sm font-semibold group">
+                    <svg class="w-4 h-4 text-[#8B5E34] shrink-0 mt-0.5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Ponniakurussi, Perinthalmanna, Malappuram, Kerala 679322</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="border-t border-[#8B5E34]/15 bg-[#EAE6DF]/60">
+        <div class="max-w-7xl mx-auto px-6 sm:px-12 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-semibold text-[#121A11]/70">
+            <p>&copy; 2026 LEGOZIA CARS. All rights reserved.</p>
+            <div class="flex items-center gap-6">
+                <a href="/login" class="hover:text-[#8B5E34] transition-colors">Admin Portal</a>
+                <a href="#" class="hover:text-[#8B5E34] transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-[#8B5E34] transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+    </main>
+
+<script>
+    let selectedFiles = [];
+
+function handleImageSelection(event) {
+    const files = Array.from(event.target.files);
+    
+    if (selectedFiles.length + files.length > 12) {
+        alert("Maximum limit of 12 images reached.");
+        return;
+    }
+
+    files.forEach(file => {
+        if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+            selectedFiles.push(file);
+        }
+    });
+
+    renderPreviews();
+    syncFileInput();
+}
+
+function removeImage(index) {
+    selectedFiles.splice(index, 1);
+    renderPreviews();
+    syncFileInput();
+}
+
+function renderPreviews() {
+    const gridWorkspace = document.getElementById('grid_workspace');
+    gridWorkspace.innerHTML = '';
+    const header = document.getElementById('workspace_header');
+    const countDisplay = document.getElementById('photo_count');
+    
+    if (selectedFiles.length > 0) {
+        header.classList.remove('hidden');
+        countDisplay.textContent = selectedFiles.length;
+    } else {
+        header.classList.add('hidden');
+    }
+
+    selectedFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const card = document.createElement('div');
+            card.className = "relative aspect-video rounded-xl overflow-hidden border border-gray-200 bg-black shadow-sm cursor-grab active:cursor-grabbing group";
+            card.setAttribute('draggable', 'true');
+            card.dataset.index = index;
+
+            // Drag and drop events for reordering
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragover', handleDragOver);
+            card.addEventListener('drop', handleDrop);
+            card.addEventListener('dragend', handleDragEnd);
+
+            card.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover pointer-events-none">
+                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-between p-1.5">
+                    <span class="bg-black/60 text-white text-[9px] font-mono px-1.5 py-0.5 rounded">${index + 1}</span>
+                    <button type="button" onclick="removeImage(${index})" class="bg-red-600 hover:bg-red-700 text-white rounded-md w-6 h-6 flex items-center justify-center text-xs transition-colors shadow">✕</button>
+                </div>
+            `;
+            gridWorkspace.appendChild(card);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function syncFileInput() {
+    const dataTransfer = new DataTransfer();
+    selectedFiles.forEach(file => dataTransfer.items.add(file));
+    document.getElementById('photo_input').files = dataTransfer.files;
+}
+
+// --- Drag & Drop Reordering Logic ---
+let draggedIndex = null;
+
+function handleDragStart(e) {
+    draggedIndex = parseInt(this.dataset.index);
+    e.dataTransfer.effectAllowed = 'move';
+    this.classList.add('opacity-40');
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    const targetIndex = parseInt(this.dataset.index);
+    
+    if (draggedIndex !== targetIndex) {
+        // Reorder array elements
+        const movedItem = selectedFiles.splice(draggedIndex, 1)[0];
+        selectedFiles.splice(targetIndex, 0, movedItem);
+        
+        renderPreviews();
+        syncFileInput();
+    }
+}
+
+function handleDragEnd() {
+    this.classList.remove('opacity-40');
+    draggedIndex = null;
+}
+
+</script>
+</body>
+</html>

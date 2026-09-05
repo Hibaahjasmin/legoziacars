@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us — LEGOZIA CARS</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='lego.png') }}">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Deep Sage Green + Natural Wood Colors */
+        .bg-sage-main { background-color: #92A38D; }
+        .bg-sage-card { background-color: #83947E; }
+        .bg-sage-dark { background-color: #6C7E67; }
+        
+        .text-sage-deep { color: #121A11; }
+        .border-sage { border-color: #71826B; }
+        
+        .text-wood { color: #5C3818; }
+        .bg-wood { background-color: #5C3818; }
+    </style>
+</head>
+<body class="bg-[#EAE6DF] text-[#121A11] min-h-screen antialiased flex flex-col justify-between selection:bg-[#5C3818] selection:text-[#F4F6F4]">
+    <!-- HEADER / NAVIGATION -->
+ 
+ <header class="w-full bg-[#A87B51] shadow-md sticky top-0 z-50 border-b border-[#8C643E]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 py-4 sm:py-5 flex items-center justify-between gap-4">
+            <a href="{{ url_for('home') }}" class="flex items-center gap-2 sm:gap-3 group shrink-0">
+                <img src="{{ url_for('static', filename='lego.png') }}" alt="LEGOZIA Logo" class="h-7 sm:h-8 w-auto object-contain transition-transform group-hover:scale-105">
+                <span class="text-xl sm:text-2xl font-black tracking-tighter uppercase text-[#F4F6F4]">LEGOZIA</span>
+            </a>
+            <nav class="flex items-center gap-5 sm:gap-10 text-xs sm:text-sm font-bold text-[#E2E8E2] shrink-0">
+                <a href="{{ url_for('about_page') }}" class="text-[#F4F6F4] transition-colors hover:text-[#71826B]">About</a>
+                <a href="#contact" class="hover:text-[#71826B] transition-colors">Contact</a>
+                <a href="{{ url_for('home') }}#inventory" class="transition-colors hover:text-[#71826B]">Shop</a>
+                <a href="{{ url_for('sell_car') }}" class="transition-colors hover:text-[#71826B]">Sell</a>
+
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+ <section class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-16 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    
+    <!-- LEFT TEXT -->
+    <div class="lg:col-span-6 space-y-6">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[1.05] text-[#121A11]">
+            PRECISION. POWER.<br>PRESTIGE.
+        </h1>
+
+        <p class="text-lg font-bold text-[#8B5E34]">
+            We engineer luxury machines that crush limits.
+        </p>
+
+        <p class="text-sm sm:text-base text-[#121A11] leading-relaxed font-medium max-w-xl">
+            Every curve, stitch, and turbocharged roar is designed to unleash dominance on the road—merging executive comfort with track-born performance so you arrive first and look fearless doing it.
+        </p>
+
+        <!-- STATS (Forced Single Row on Mobile) -->
+        <div class="grid grid-cols-3 gap-3 sm:gap-6 pt-8 border-t border-[#71826B]">
+            <div>
+                <p class="text-xl sm:text-2xl font-black text-[#121A11]">100%</p>
+                <p class="text-[9px] sm:text-[11px] uppercase font-mono text-[#8B5E34] font-extrabold mt-1">Non-Accidental</p>
+            </div>
+            <div>
+                <p class="text-xl sm:text-2xl font-black text-[#121A11]">4.7 ★</p>
+                <p class="text-[9px] sm:text-[11px] uppercase font-mono text-[#121A11] font-bold mt-1">Google Rating</p>
+            </div>
+            <div>
+                <p class="text-xl sm:text-2xl font-black text-[#121A11]">Verified</p>
+                <p class="text-[9px] sm:text-[11px] uppercase font-mono text-[#8B5E34] font-extrabold mt-1">Low Mileage</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SHOWROOM IMAGE -->
+    <div class="lg:col-span-6 w-full h-[400px] sm:h-[480px] lg:h-[580px] relative rounded-2xl overflow-hidden shadow-2xl border-2 border-[#8B5E34]">
+        <img src="https://images.unsplash.com/photo-1605437241278-c1806d14a4d9?auto=format&fit=crop&w=1200&q=80" 
+             alt="LEGOZIA Luxury AMG Interior" 
+             class="w-full h-full object-cover">
+        
+        <!-- FLOATING OVERLAY CARD -->
+        <div class="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 p-4 sm:p-5 bg-[#8B5E34]/95 backdrop-blur-md rounded-xl border border-[#6E4826] flex items-center justify-between shadow-lg">
+            <div>
+                <p class="text-xs font-black text-[#F4F6F4] uppercase tracking-wider">Perinthalmanna Studio</p>
+                <p class="text-[10px] sm:text-[11px] text-[#E2E8E2] font-semibold mt-0.5">Verified Luxury Showroom • 28 Reviews</p>
+            </div>
+            <span class="text-[10px] font-mono text-[#F4F6F4] font-extrabold uppercase bg-[#92A38D]/25 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded border border-[#92A38D]/40">
+                LEGOZIA
+            </span>
+        </div>
+    </div>
+</section>
+
+    <!-- CORE VALUES -->
+ <section class="border-y border-[#8B5E34]/20 bg-[#EAE6DF] py-12 lg:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 lg:px-16">
+        <div class="text-center max-w-md mx-auto mb-8 lg:mb-12 space-y-1.5">
+            <span class="text-[9px] sm:text-[10px] font-mono tracking-[0.25em] uppercase text-[#8B5E34] font-extrabold block">Craftsmanship & Integrity</span>
+            <h2 class="text-xl sm:text-3xl font-black uppercase tracking-tight text-[#121A11]">The LEGOZIA Standard</h2>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
+            <!-- 01 -->
+            <div class="p-4 sm:p-8 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] space-y-2 sm:space-y-3 shadow-sm sm:shadow-md transition-transform hover:-translate-y-1">
+                <span class="text-[10px] sm:text-xs font-mono font-bold text-[#8B5E34] block">01 / INTEGRITY</span>
+                <h3 class="text-xs sm:text-base font-black text-[#121A11] uppercase tracking-wide leading-tight">100% Non-Accidental</h3>
+                <p class="text-[11px] sm:text-xs text-[#121A11]/80 leading-relaxed font-semibold">We strictly select vehicles free of structural defects, flood damage, or accident history.</p>
+            </div>
+
+            <!-- 02 -->
+            <div class="p-4 sm:p-8 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] space-y-2 sm:space-y-3 shadow-sm sm:shadow-md transition-transform hover:-translate-y-1">
+                <span class="text-[10px] sm:text-xs font-mono font-bold text-[#8B5E34] block">02 / VERIFICATION</span>
+                <h3 class="text-xs sm:text-base font-black text-[#121A11] uppercase tracking-wide leading-tight">Low Mileage Certified</h3>
+                <p class="text-[11px] sm:text-xs text-[#121A11]/80 leading-relaxed font-semibold">Authentic history records verified directly with authorized brand centers for pure mechanical performance.</p>
+            </div>
+
+            <!-- 03 -->
+            <div class="p-4 sm:p-8 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] space-y-2 sm:space-y-3 shadow-sm sm:shadow-md transition-transform hover:-translate-y-1">
+                <span class="text-[10px] sm:text-xs font-mono font-bold text-[#8B5E34] block">03 / INSPECTION</span>
+                <h3 class="text-xs sm:text-base font-black text-[#121A11] uppercase tracking-wide leading-tight">200-Point Quality Audit</h3>
+                <p class="text-[11px] sm:text-xs text-[#121A11]/80 leading-relaxed font-semibold">Comprehensive diagnostic scans, engine check, and suspension testing prior to showroom listing.</p>
+            </div>
+
+            <!-- 04 -->
+            <div class="p-4 sm:p-8 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] space-y-2 sm:space-y-3 shadow-sm sm:shadow-md transition-transform hover:-translate-y-1">
+                <span class="text-[10px] sm:text-xs font-mono font-bold text-[#8B5E34] block">04 / REFINEMENT</span>
+                <h3 class="text-xs sm:text-base font-black text-[#121A11] uppercase tracking-wide leading-tight">Studio Detailing</h3>
+                <p class="text-[11px] sm:text-xs text-[#121A11]/80 leading-relaxed font-semibold">Complete interior sanitation, leather nourishment, and paint restoration to deliver factory-fresh finishes.</p>
+            </div>
+
+            <!-- 05 -->
+            <div class="p-4 sm:p-8 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] space-y-2 sm:space-y-3 shadow-sm sm:shadow-md transition-transform hover:-translate-y-1">
+                <span class="text-[10px] sm:text-xs font-mono font-bold text-[#8B5E34] block">05 / TRANSPARENCY</span>
+                <h3 class="text-xs sm:text-base font-black text-[#121A11] uppercase tracking-wide leading-tight">Clear Title Guarantee</h3>
+                <p class="text-[11px] sm:text-xs text-[#121A11]/80 leading-relaxed font-semibold">100% legal document verification ensuring zero active hypothecation issues or legal encumbrances.</p>
+            </div>
+
+            <!-- 06 -->
+            <div class="p-4 sm:p-8 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] space-y-2 sm:space-y-3 shadow-sm sm:shadow-md transition-transform hover:-translate-y-1">
+                <span class="text-[10px] sm:text-xs font-mono font-bold text-[#8B5E34] block">06 / SERVICE</span>
+                <h3 class="text-xs sm:text-base font-black text-[#121A11] uppercase tracking-wide leading-tight">End-To-End RTO Transfer</h3>
+                <p class="text-[11px] sm:text-xs text-[#121A11]/80 leading-relaxed font-semibold">Seamless ownership transfer, insurance assistance, and door-step delivery for complete peace of mind.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- TESTIMONIALS -->
+    <section class="py-20 max-w-7xl mx-auto px-8 lg:px-16 w-full">
+    <!-- SECTION HEADER -->
+    <div class="max-w-xl mx-auto text-center mb-16 space-y-3">
+        <span class="text-[10px] font-mono tracking-[0.25em] uppercase text-[#8B5E34] font-extrabold bg-[#8B5E34]/10 px-4 py-1.5 rounded-full inline-block border border-[#8B5E34]/20">
+            Google Reviews
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-black text-[#121A11] tracking-tight uppercase">
+            Client Testimonials
+        </h2>
+        <div class="flex items-center justify-center gap-2 pt-1">
+            <span class="text-[#8B5E34] text-sm font-black">★★★★★</span>
+            <span class="text-xs text-[#121A11]/70 font-mono font-bold">4.7 Stars (28 Reviews) • Perinthalmanna</span>
+        </div>
+    </div>
+
+    <!-- TESTIMONIAL CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- TESTIMONIAL 1 -->
+        <div class="p-8 rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] relative flex flex-col justify-between shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+            <span class="text-4xl font-serif text-[#8B5E34]/25 absolute top-4 right-6 font-bold">“</span>
+            <div class="space-y-4 relative z-10">
+                <div class="text-[#8B5E34] text-xs tracking-widest font-black">★★★★★</div>
+                <p class="text-xs sm:text-sm text-[#121A11] leading-relaxed font-semibold italic">
+                    "I bought a Honda City from LEGOZIA. Straightforward, professional approach paired with a warm welcome!"
+                </p>
+            </div>
+            <div class="border-t border-[#8B5E34]/15 pt-4 mt-6 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-black text-[#121A11] uppercase tracking-wide">Jibin Joseph Sebastian</p>
+                    <p class="text-[10px] text-[#8B5E34] font-mono font-extrabold mt-0.5">Local Guide</p>
+                </div>
+                <span class="text-[10px] font-mono text-[#121A11]/50 uppercase font-bold">Verified</span>
+            </div>
+        </div>
+
+        <!-- TESTIMONIAL 2 -->
+        <div class="p-8 rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] relative flex flex-col justify-between shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+            <span class="text-4xl font-serif text-[#8B5E34]/25 absolute top-4 right-6 font-bold">“</span>
+            <div class="space-y-4 relative z-10">
+                <div class="text-[#8B5E34] text-xs tracking-widest font-black">★★★★★</div>
+                <p class="text-xs sm:text-sm text-[#121A11] leading-relaxed font-semibold italic">
+                    "Excellent experience from start to finish! Friendly team, clean and exceptionally well-maintained cars."
+                </p>
+            </div>
+            <div class="border-t border-[#8B5E34]/15 pt-4 mt-6 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-black text-[#121A11] uppercase tracking-wide">Sanad P</p>
+                    <p class="text-[10px] text-[#8B5E34] font-mono font-extrabold mt-0.5">Verified Buyer</p>
+                </div>
+                <span class="text-[10px] font-mono text-[#121A11]/50 uppercase font-bold">Verified</span>
+            </div>
+        </div>
+
+        <!-- TESTIMONIAL 3 -->
+        <div class="p-8 rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] relative flex flex-col justify-between shadow-md transition-all hover:-translate-y-1 hover:shadow-lg">
+            <span class="text-4xl font-serif text-[#8B5E34]/25 absolute top-4 right-6 font-bold">“</span>
+            <div class="space-y-4 relative z-10">
+                <div class="text-[#8B5E34] text-xs tracking-widest font-black">★★★★★</div>
+                <p class="text-xs sm:text-sm text-[#121A11] leading-relaxed font-semibold italic">
+                    "Great collection of premium cars, reasonable prices, and low km vehicles. Highly recommended!"
+                </p>
+            </div>
+            <div class="border-t border-[#8B5E34]/15 pt-4 mt-6 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-black text-[#121A11] uppercase tracking-wide">Noufal Padinhatty</p>
+                    <p class="text-[10px] text-[#8B5E34] font-mono font-extrabold mt-0.5">Verified Buyer</p>
+                </div>
+                <span class="text-[10px] font-mono text-[#121A11]/50 uppercase font-bold">Verified</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- CONTACT GRID -->
+  <section id="contact" class="py-12 sm:py-20 max-w-7xl mx-auto px-4 sm:px-8 lg:px-16 w-full border-t border-[#8B5E34]/20">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+        
+        <!-- LEFT: SHOWROOM ADDRESS & MAP -->
+        <div class="lg:col-span-5 bg-[#8B5E34] text-[#F4F6F4] p-6 sm:p-8 lg:p-10 rounded-2xl flex flex-col justify-between shadow-lg relative overflow-hidden">
+            <div class="space-y-3 sm:space-y-4 relative z-10">
+                <div class="flex items-center justify-between">
+                    <span class="text-[9px] sm:text-[10px] font-mono tracking-[0.2em] uppercase text-[#F4F6F4]/70 font-extrabold block">
+                        Main Showroom
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-[#F4F6F4]/15 text-[#F4F6F4] border border-[#F4F6F4]/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Open Today
+                    </span>
+                </div>
+                <h2 class="text-xl sm:text-2xl lg:text-3xl font-black uppercase tracking-tight">
+                    Perinthalmanna Studio
+                </h2>
+                <p class="text-xs text-[#F4F6F4]/80 leading-relaxed font-medium">
+                    Visit our private studio to inspect verified, low-mileage luxury vehicles in person with our sales consultants.
+                </p>
+            </div>
+
+            <div class="pt-6 sm:pt-8 border-t border-[#F4F6F4]/20 mt-6 sm:mt-8 relative z-10 flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] sm:text-[11px] font-mono font-bold text-[#F4F6F4]/70 uppercase">Operating Hours</p>
+                    <p class="text-xs sm:text-sm font-black text-[#F4F6F4]">9:00 AM – 7:30 PM</p>
+                </div>
+                <a href="https://maps.app.goo.gl/PLVKGXFvdjGhMFM3A" target="_blank" 
+                   class="inline-flex items-center gap-1.5 sm:gap-2 bg-[#F4F6F4] text-[#121A11] px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider hover:bg-[#EAE6DF] transition-colors shadow-md">
+                    Directions →
+                </a>
+            </div>
+        </div>
+
+        <!-- RIGHT: ENHANCED ACTION GRID (2-Cols on Mobile) -->
+        <div class="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            
+            <!-- WHATSAPP -->
+            <a href="https://wa.me/919061269268" target="_blank" 
+               class="p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] flex flex-col justify-between hover:border-[#8B5E34] transition-all group shadow-sm hover:shadow-md">
+                <div>
+                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#8B5E34]/10 text-[#8B5E34] flex items-center justify-center group-hover:bg-[#8B5E34] group-hover:text-[#F4F6F4] transition-colors">
+                            <!-- WhatsApp Icon -->
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                            </svg>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-mono font-extrabold text-[#8B5E34] uppercase tracking-wider hidden sm:inline">Instant Chat</span>
+                    </div>
+                    <p class="text-xs sm:text-sm font-black text-[#121A11] uppercase tracking-tight">WhatsApp</p>
+                    <p class="text-[10px] sm:text-[11px] text-[#121A11]/60 font-semibold mt-1">Get instant pricing, photos & specs</p>
+                </div>
+                <div class="pt-3 sm:pt-4 border-t border-[#8B5E34]/15 mt-4 sm:mt-6">
+                    <p class="text-[11px] sm:text-xs font-black text-[#8B5E34] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                        Start Chat →
+                    </p>
+                </div>
+            </a>
+
+            <!-- CALL -->
+            <a href="tel:+919061269268" 
+               class="p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] flex flex-col justify-between hover:border-[#8B5E34] transition-all group shadow-sm hover:shadow-md">
+                <div>
+                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#8B5E34]/10 text-[#8B5E34] flex items-center justify-center group-hover:bg-[#8B5E34] group-hover:text-[#F4F6F4] transition-colors">
+                            <!-- Phone Icon -->
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-mono font-extrabold text-[#8B5E34] uppercase tracking-wider hidden sm:inline">Direct Line</span>
+                    </div>
+                    <p class="text-xs sm:text-sm font-black text-[#121A11] uppercase tracking-tight">+91 90612 69268</p>
+                    <p class="text-[10px] sm:text-[11px] text-[#121A11]/60 font-semibold mt-1">Speak directly with our team</p>
+                </div>
+                <div class="pt-3 sm:pt-4 border-t border-[#8B5E34]/15 mt-4 sm:mt-6">
+                    <p class="text-[11px] sm:text-xs font-black text-[#8B5E34] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                        Call Now →
+                    </p>
+                </div>
+            </a>
+
+            <!-- INSTAGRAM -->
+            <a href="https://instagram.com" target="_blank" 
+               class="col-span-2 sm:col-span-1 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-[#8B5E34]/20 bg-[#F4F6F4] flex flex-col justify-between hover:border-[#8B5E34] transition-all group shadow-sm hover:shadow-md">
+                <div>
+                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#8B5E34]/10 text-[#8B5E34] flex items-center justify-center group-hover:bg-[#8B5E34] group-hover:text-[#F4F6F4] transition-colors">
+                            <!-- Instagram Icon -->
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </div>
+                        <span class="text-[9px] sm:text-[10px] font-mono font-extrabold text-[#8B5E34] uppercase tracking-wider hidden sm:inline">Social Feed</span>
+                    </div>
+                    <p class="text-xs sm:text-sm font-black text-[#121A11] uppercase tracking-tight">Instagram</p>
+                    <p class="text-[10px] sm:text-[11px] text-[#121A11]/60 font-semibold mt-1">Daily arrivals, videos & walkarounds</p>
+                </div>
+                <div class="pt-3 sm:pt-4 border-t border-[#8B5E34]/15 mt-4 sm:mt-6">
+                    <p class="text-[11px] sm:text-xs font-black text-[#8B5E34] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                        View Feed →
+                    </p>
+                </div>
+            </a>
+
+        </div>
+
+    </div>
+</section>
+
+    <!-- FOOTER -->
+   <footer role="contentinfo" class="w-full bg-[#EAE6DF] text-[#121A11] border-t border-[#8B5E34]/20 font-sans transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-6 sm:px-12 pt-16 pb-12">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12">
+            
+            <!-- BRAND & BRIEF CONTACT -->
+            <div class="md:col-span-5 space-y-6">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-black tracking-wider text-[#121A11] uppercase">Legozia</h2>
+                </div>
+
+                <p class="text-xs sm:text-sm text-[#121A11]/70 font-medium leading-relaxed max-w-sm">
+                    Your journey to a refined driving experience begins with a conversation. Visit our studio or connect with our specialists today.
+                </p>
+
+                <div class="space-y-3 text-xs sm:text-sm font-semibold">
+                    <a href="mailto:info@legozia.com" class="flex items-center gap-3 text-[#121A11] hover:text-[#8B5E34] transition-colors">
+                        <svg class="w-4 h-4 text-[#8B5E34]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <span>info@legozia.com</span>
+                    </a>
+                    <a href="tel:+919061269268" class="flex items-center gap-3 text-[#121A11] hover:text-[#8B5E34] transition-colors">
+                        <svg class="w-4 h-4 text-[#8B5E34]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        <span>+91 90612 69268</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- COMPANY NAVIGATION -->
+            <div class="md:col-span-3 space-y-4">
+                <h3 class="text-xs font-mono font-extrabold text-[#8B5E34] tracking-wider uppercase">Company</h3>
+                <ul class="space-y-2.5 text-xs sm:text-sm font-semibold text-[#121A11]/80">
+    <li><a href="{{ url_for('about_page') }}" class="hover:text-[#8B5E34] transition-colors">About & Contact</a></li>
+    <li><a href="{{ url_for('home') }}#inventory" class="hover:text-[#8B5E34] transition-colors">Browse Cars</a></li>
+    <li><a href="{{ url_for('sell_car') }}" class="hover:text-[#8B5E34] transition-colors">Sell Your Car</a></li>
+    <li><a href="https://maps.app.goo.gl/PLVKGXFvdjGhMFM3A" target="_blank" class="hover:text-[#8B5E34] transition-colors">Our Showroom</a></li>
+    </ul>
+            </div>
+
+            <!-- SHOWROOM LOCATION -->
+            <div class="md:col-span-4 space-y-4">
+                <h3 class="text-xs font-mono font-extrabold text-[#8B5E34] tracking-wider uppercase">Showroom Location</h3>
+                <a href="https://maps.app.goo.gl/PLVKGXFvdjGhMFM3A" target="_blank" class="flex items-start gap-2.5 text-[#121A11]/80 hover:text-[#8B5E34] transition-colors leading-relaxed text-xs sm:text-sm font-semibold group">
+                    <svg class="w-4 h-4 text-[#8B5E34] shrink-0 mt-0.5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Ponniakurussi, Perinthalmanna, Malappuram, Kerala 679322</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="border-t border-[#8B5E34]/15 bg-[#EAE6DF]/60">
+        <div class="max-w-7xl mx-auto px-6 sm:px-12 py-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs font-semibold text-[#121A11]/70">
+            <p>&copy; 2026 LEGOZIA CARS. All rights reserved.</p>
+            <div class="flex items-center gap-6">
+                <a href="/login" class="hover:text-[#8B5E34] transition-colors">Admin Portal</a>
+                <a href="#" class="hover:text-[#8B5E34] transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-[#8B5E34] transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

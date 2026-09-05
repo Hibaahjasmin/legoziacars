@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ car.brand }} {{ car.model }}</title>
+
+    <!-- Base URL Construction for WhatsApp -->
+    {% set base_url = request.url_root.replace('http://', 'https://').rstrip('/') %}
+    {% set absolute_image_url = base_url + '/' + primary_image %}
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ car.brand }} {{ car.model }}" />
+    <meta property="og:description" content="Price: {{ car.price }}" />
+    <meta property="og:image" content="{{ absolute_image_url }}" />
+    <meta property="og:image:secure_url" content="{{ absolute_image_url }}" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="{{ request.url.replace('http://', 'https://') }}" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Instant JS Redirect to main page with hash -->
+    <script>
+        window.location.replace("/#car-{{ car.id }}");
+    </script>
+</head>
+<body class="bg-[#121A11] text-[#F4F6F4] min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <!-- Pre-redirect / Non-JS Fallback UI -->
+    <div class="max-w-md w-full bg-[#1A2419] border border-[#8B5E34]/30 rounded-2xl p-6 shadow-2xl text-center space-y-4">
+        <div class="w-full h-56 rounded-xl overflow-hidden bg-black/40 border border-[#8B5E34]/20">
+            <img src="/{{ primary_image }}" alt="{{ car.brand }} {{ car.model }}" class="w-full h-full object-cover">
+        </div>
+        <div>
+            <span class="text-[10px] font-bold tracking-widest text-[#8B5E34] uppercase">Featured Vehicle</span>
+            <h1 class="text-2xl font-black tracking-tight text-[#F4F6F4] mt-1">{{ car.brand }} {{ car.model }}</h1>
+            <p class="text-lg font-bold text-[#8B5E34] mt-1">Price: {{ car.price }}</p>
+        </div>
+        <div class="pt-2">
+            <a href="/#car-{{ car.id }}" class="inline-block w-full py-3 bg-[#8B5E34] hover:bg-[#A36F3D] text-[#F4F6F4] font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md">
+                View Vehicle Details
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
