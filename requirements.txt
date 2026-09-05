@@ -3,7 +3,7 @@ Flask-SQLAlchemy
 Flask-SocketIO
 Flask-Mail
 python-dotenv
-gunicorn
+gunicorn==20.1.0
 eventlet
 psycopg2-binary
 werkzeug
