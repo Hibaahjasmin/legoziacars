@@ -182,18 +182,34 @@
                     </div>
                     {% endif %}
                     
-                    {% for car in cars %}
-                    <div class="px-5 sm:px-8 py-5 sm:py-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 hover:bg-[#8B5E34]/5 transition-all">
-                        <div class="flex items-center gap-4 sm:gap-5 text-left">
-                            <div class="relative w-20 h-12 rounded-xl overflow-hidden border border-[#8B5E34]/20 flex-shrink-0 bg-[#EAE6DF]">
-                                {% if car.images and car.images|length > 0 %}
-                                    {% set first_img = car.images[0].image_path if car.images[0].image_path is defined else car.images[0] %}
-                                    {% set img_url = url_for('static', filename=first_img.replace('static/', '')) if not first_img.startswith('http') else first_img %}
-                                    <img src="{{ img_url }}" alt="{{ car.brand }} {{ car.model }}" loading="lazy" class="w-full h-full object-cover">
-                                    <div class="absolute bottom-1 right-1 bg-black/60 text-[8px] px-1.5 py-0.5 text-white font-mono rounded-md border border-white/10">
-                                        {{ car.images|length }}
-                                    </div>
-                                {% else %}
+                  {% if car.images and car.images|length > 0 %}
+    {% set first_img = car.images[0].image_path if car.images[0].image_path is defined else car.images[0] %}
+    {% set img_str = first_img|string %}
+
+    {% if img_str.startswith('http') %}
+        {% set img_url = img_str %}
+    {% elif img_str.startswith('/static/') %}
+        {% set img_url = img_str %}
+    {% elif img_str.startswith('static/') %}
+        {% set img_url = '/' ~ img_str %}
+    {% else %}
+        {% set img_url = '/static/' ~ img_str %}
+    {% endif %}
+
+    <img src="{{ img_url }}" 
+         alt="{{ car.brand }} {{ car.model }}" 
+         loading="lazy" 
+         onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image';"
+         class="w-full h-full object-cover">
+
+    <div class="absolute bottom-1 right-1 bg-black/60 text-[8px] px-1.5 py-0.5 text-white font-mono rounded-md border border-white/10">
+        {{ car.images|length }}
+    </div>
+{% else %}
+    <img src="https://via.placeholder.com/400x400?text=No+Image" 
+         alt="{{ car.brand }} {{ car.model }}" 
+         class="w-full h-full object-cover opacity-50">
+{% endif %}
                                     <div class="w-full h-full flex items-center justify-center text-[8px] font-mono text-[#8B5E34]/60 uppercase">
                                         No Image
                                     </div>
