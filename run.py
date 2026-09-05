@@ -18,6 +18,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO, emit
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
+import cloudinary
+import cloudinary.uploader
 
 # --- APP INITIALIZATION ---
 app = Flask(__name__)
@@ -27,13 +29,23 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+# --- CLOUDINARY CONFIGURATION ---
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
+
 # --- CONFIGURATIONS ---
 app.secret_key = os.getenv('SECRET_KEY', 'autoheads_super_secure_vault_key_2026')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max payload limit
 
-# Database Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(BASE_DIR, 'database.db')}"
+# Database Configuration (Supabase in production, local fallback)
+db_url = os.getenv('DATABASE_URL')
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url or f"sqlite:///{os.path.join(BASE_DIR, 'database.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
@@ -80,7 +92,7 @@ class Car(db.Model):
 
 class CarImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    image_path = db.Column(db.String(255), nullable=False)
+    image_path = db.Column(db.String(550), nullable=False)
     car_id = db.Column(db.Integer, db.ForeignKey('car.id'), nullable=False)
 
 
@@ -196,10 +208,11 @@ def sell_car():
 
         for idx, file in enumerate(uploaded_files):
             if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                unique_name = f"sell_{int(datetime.now().timestamp())}_{idx}_{filename}"
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_name))
-                saved_image_paths.append(f"static/uploads/{unique_name}")
+                try:
+                    upload_res = cloudinary.uploader.upload(file)
+                    saved_image_paths.append(upload_res['secure_url'])
+                except Exception as e:
+                    print(f"Cloudinary upload error: {e}")
 
         brand = request.form.get('brand', '').strip()
         car_model = request.form.get('car_model', '').strip()
@@ -312,9 +325,11 @@ def share_car(car_id):
             else:
                 primary_image = str(first_item)
 
-    primary_image = str(primary_image).strip().lstrip('/')
-    if not primary_image.startswith('static/'):
-        primary_image = f'static/{primary_image}'
+    primary_image = str(primary_image).strip()
+    if not primary_image.startswith(('http://', 'https://')):
+        primary_image = primary_image.lstrip('/')
+        if not primary_image.startswith('static/'):
+            primary_image = f'static/{primary_image}'
 
     return render_template('car_share.html', car=car, primary_image=primary_image)
 
@@ -409,15 +424,15 @@ def add_car():
     
     for idx, file in enumerate(uploaded_files):
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            unique_name = f"car_{new_car.id}_{idx}_{filename}"
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], unique_name))
-            
-            img_entry = CarImage(
-                image_path=f"uploads/{unique_name}",
-                car_id=new_car.id
-            )
-            db.session.add(img_entry)
+            try:
+                upload_res = cloudinary.uploader.upload(file)
+                img_entry = CarImage(
+                    image_path=upload_res['secure_url'],
+                    car_id=new_car.id
+                )
+                db.session.add(img_entry)
+            except Exception as e:
+                print(f"Cloudinary upload error: {e}")
 
     db.session.commit()
     flash("Vehicle added successfully!")
@@ -432,16 +447,17 @@ def delete_car(car_id):
     car_to_delete = Car.query.get(car_id)
     if car_to_delete:
         for img in car_to_delete.images:
-            file_path = os.path.join(app.root_path, 'static', img.image_path)
-            if os.path.exists(file_path):
-                try:
-                    os.remove(file_path)
-                except Exception as e:
-                    print(f"Failed to delete file {file_path}: {e}")
+            if not img.image_path.startswith(('http://', 'https://')):
+                file_path = os.path.join(app.root_path, 'static', img.image_path)
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                    except Exception as e:
+                        print(f"Failed to delete file {file_path}: {e}")
 
         db.session.delete(car_to_delete)
         db.session.commit()
-        flash("Vehicle and associated image files deleted successfully!")
+        flash("Vehicle and associated image records deleted successfully!")
         
     return redirect(url_for('admin_dashboard'))
 
@@ -456,7 +472,7 @@ def publish_inquiry(id):
     if inquiry.images:
         for relative_path in inquiry.images.split(','):
             relative_path = relative_path.strip()
-            if relative_path:
+            if relative_path and not relative_path.startswith(('http://', 'https://')):
                 file_path = os.path.join(app.root_path, relative_path)
                 if os.path.exists(file_path):
                     try:
@@ -466,7 +482,7 @@ def publish_inquiry(id):
 
     db.session.delete(inquiry)
     db.session.commit()
-    flash("Inquiry dismissed and uploaded images cleaned up.")
+    flash("Inquiry dismissed.")
     return redirect(url_for('admin_dashboard'))
 
 
