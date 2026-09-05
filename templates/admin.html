@@ -345,9 +345,14 @@
     <div class="mt-4 pt-3 border-t border-[#8B5E34]/10">
         <span class="text-[10px] font-black uppercase tracking-wider text-[#8B5E34] block mb-2">Photos</span>
         <div class="flex flex-wrap gap-2">
-            {% set image_list = item.images.split(',') if item.images is string else item.images %}
-            {% for raw_path in image_list %}
-                {% set clean_path = (raw_path.image_path if raw_path.image_path is defined else raw_path)|string|trim %}
+            {% if item.images is string %}
+                {% set img_array = item.images.split(',') %}
+            {% else %}
+                {% set img_array = item.images %}
+            {% endif %}
+
+            {% for raw_img in img_array %}
+                {% set clean_path = (raw_img.image_path if raw_img.image_path is defined else raw_img)|string|trim %}
                 {% if clean_path %}
                     {% if clean_path.startswith('http') %}
                         {% set full_url = clean_path %}
@@ -358,7 +363,7 @@
                     {% else %}
                         {% set full_url = '/static/' ~ clean_path %}
                     {% endif %}
-                    
+
                     <button type="button" onclick="openLightbox('{{ full_url }}')" class="group relative aspect-video w-20 overflow-hidden rounded-lg border border-[#8B5E34]/20 bg-white focus:outline-none shadow-sm">
                         <img src="{{ full_url }}" 
                              loading="lazy" 
