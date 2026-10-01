@@ -37,7 +37,7 @@ cloudinary.config(
 )
 
 # --- CONFIGURATIONS ---
-app.secret_key = os.getenv('SECRET_KEY', 'autoheads_super_secure_vault_key_2026')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'legozia_default_fallback_key_2026')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max payload limit
 
@@ -45,8 +45,15 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max payload limit
 db_url = os.getenv('DATABASE_URL')
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url or f"sqlite:///{os.path.join(BASE_DIR, 'database.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# FIX 1: Connection Pool Health Checks & Recycles for Supabase
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 280,
+}
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -55,10 +62,11 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # File Extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'gif'}
 
-# --- EMAIL CONFIGURATION ---
+# --- EMAIL CONFIGURATION (FIX 2: Port 587 with TLS) ---
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
-app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 465))
-app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'True').lower() in ['true', '1']
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'on']
+app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False').lower() in ['true', '1', 'on']
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'hibajasmin852@gmail.com')
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'wueazvourvltrgdt')
 NOTIFICATION_EMAIL = os.getenv('NOTIFICATION_EMAIL', app.config['MAIL_USERNAME'])
@@ -127,8 +135,11 @@ class Inquiry(db.Model):
 
 
 with app.app_context():
-    db.create_all()
-
+    try:
+        db.create_all()
+        print("Database tables initialized successfully.")
+    except Exception as e:
+        print(f"Database setup warning: {e}")
 
 # --- UTILITY HELPERS ---
 def allowed_file(filename):
@@ -529,6 +540,32 @@ def robots():
     base_url = os.getenv('DOMAIN_NAME', request.url_root.rstrip('/'))
     content = f"User-agent: *\nDisallow: /admin\nAllow: /\nSitemap: {base_url}/sitemap.xml"
     return app.response_class(content, mimetype='text/plain')
+
+
+@app.route('/sitemap.xml', methods=['GET'])
+def sitemap():
+    cars = Car.query.all()
+    
+    # Resolves base URL dynamically from environment or request root
+    base_url = os.getenv('DOMAIN_NAME', request.url_root.rstrip('/'))
+    
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    # Core static site endpoints
+    static_endpoints = ['', '/sell', '/about']
+    for page in static_endpoints:
+        xml_content += f'  <url>\n    <loc>{base_url}{page}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n'
+        
+    # Dynamic car page endpoints
+    for car in cars:
+        xml_content += f'  <url>\n    <loc>{base_url}/car/{car.id}</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n'
+        
+    xml_content += '</urlset>'
+    
+    return app.response_class(xml_content, mimetype='application/xml')
+
+
 
 
 if __name__ == '__main__':
