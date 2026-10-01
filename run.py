@@ -155,26 +155,6 @@ def request_entity_too_large(error):
     flash("File upload exceeds the 16MB maximum allowed size limit.", "error")
     return redirect(request.referrer or url_for('admin_dashboard'))
 
-
-@app.route('/sitemap.xml', methods=['GET'])
-def sitemap():
-    cars = Car.query.all()
-    base_url = os.getenv('DOMAIN_NAME', 'https://legoziacars.com')
-    
-    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
-    xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-    
-    for page in ['', '/sell', '/about']:
-        xml_content += f'  <url><loc>{base_url}{page}</loc><changefreq>weekly</changefreq></url>\n'
-        
-    for car in cars:
-        xml_content += f'  <url><loc>{base_url}/car/{car.id}</loc><changefreq>daily</changefreq></url>\n'
-        
-    xml_content += '</urlset>'
-    
-    return app.response_class(xml_content, mimetype='application/xml')
-
-
 # -----------------------------------------------------------------
 # CORE OPERATIONAL ROUTES
 # -----------------------------------------------------------------
@@ -564,8 +544,6 @@ def sitemap():
     xml_content += '</urlset>'
     
     return app.response_class(xml_content, mimetype='application/xml')
-
-
 
 
 if __name__ == '__main__':
