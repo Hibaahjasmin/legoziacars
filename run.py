@@ -20,6 +20,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 import cloudinary
 import cloudinary.uploader
+import socket
 
 # --- APP INITIALIZATION ---
 app = Flask(__name__)
@@ -68,7 +69,7 @@ app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ['true', '1', 'on']
 app.config['MAIL_USE_SSL'] = os.getenv('MAIL_USE_SSL', 'False').lower() in ['true', '1', 'on']
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', 'hibajasmin852@gmail.com')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'wueazvourvltrgdt')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', 'aculzsgssmktmrxb')
 NOTIFICATION_EMAIL = os.getenv('NOTIFICATION_EMAIL', app.config['MAIL_USERNAME'])
 
 mail = Mail(app)
@@ -190,6 +191,7 @@ def inventory():
     return redirect(url_for('home'))
 
 
+
 @app.route('/sell', endpoint='sell_car', methods=['GET', 'POST'])
 @app.route('/sell_car', methods=['GET', 'POST'])
 def sell_car():
@@ -197,10 +199,16 @@ def sell_car():
         uploaded_files = request.files.getlist('photos')
         saved_image_paths = []
 
-        for idx, file in enumerate(uploaded_files):
-            if file and allowed_file(file.filename):
+        # 1. Cloudinary Upload with handling
+        for file in uploaded_files:
+            if file and file.filename and allowed_file(file.filename):
                 try:
-                    upload_res = cloudinary.uploader.upload(file)
+                    # Setting folder structure prevents long processing delays
+                    upload_res = cloudinary.uploader.upload(
+                        file, 
+                        folder="legozia_sell_requests",
+                        resource_type="image"
+                    )
                     saved_image_paths.append(upload_res['secure_url'])
                 except Exception as e:
                     print(f"Cloudinary upload error: {e}")
@@ -215,60 +223,77 @@ def sell_car():
         email = request.form.get('email', 'N/A').strip()
         expected_amount = request.form.get('expected_amount', 'N/A').strip()
 
-        new_lead = Inquiry(
-            type='Sell Request',
-            name=name,
-            email=email,
-            phone=phone,
-            place=request.form.get('place', 'N/A').strip(),
-            brand=brand,
-            car_model=car_model,
-            variant=request.form.get('variant', '').strip(),
-            year=int(year_val) if year_val.isdigit() else None,
-            km_driven=km_driven,
-            fuel_type=request.form.get('fuel_type', '').strip(),
-            transmission=request.form.get('transmission', '').strip(),
-            owners=request.form.get('owners', '').strip(),
-            registration_number=request.form.get('registration_number', '').strip(),
-            expected_amount=expected_amount,
-            overall_condition=request.form.get('overall_condition', '').strip(),
-            accident_history=request.form.get('accident_history', '').strip(),
-            service_history=request.form.get('service_history', '').strip(),
-            message=request.form.get('message', '').strip(),
-            car_name=f'{year_val} {brand} {car_model}'.strip(),
-            est_emi=f'Mileage: {km_driven}' if km_driven else '',
-            images=','.join(saved_image_paths),
-            timestamp=datetime.now().isoformat(),
-        )
-
-        db.session.add(new_lead)
-        db.session.commit()
-
-        socketio.emit('new_inquiry', {
-            'title': 'New Car Sell Request!',
-            'message': f'New valuation offer received for {year_val} {brand} {car_model}. Contact: {phone}'
-        })
-
+        # 2. Database Insert (Pass native datetime object instead of string)
         try:
+            new_lead = Inquiry(
+                type='Sell Request',
+                name=name,
+                email=email,
+                phone=phone,
+                place=request.form.get('place', 'N/A').strip(),
+                brand=brand,
+                car_model=car_model,
+                variant=request.form.get('variant', '').strip(),
+                year=int(year_val) if year_val.isdigit() else None,
+                km_driven=km_driven,
+                fuel_type=request.form.get('fuel_type', '').strip(),
+                transmission=request.form.get('transmission', '').strip(),
+                owners=request.form.get('owners', '').strip(),
+                registration_number=request.form.get('registration_number', '').strip(),
+                expected_amount=expected_amount,
+                overall_condition=request.form.get('overall_condition', '').strip(),
+                accident_history=request.form.get('accident_history', '').strip(),
+                service_history=request.form.get('service_history', '').strip(),
+                message=request.form.get('message', '').strip(),
+                car_name=f'{year_val} {brand} {car_model}'.strip(),
+                est_emi=f'Mileage: {km_driven}' if km_driven else '',
+                images=','.join(saved_image_paths),
+                timestamp=datetime.utcnow()  # Native datetime object for PostgreSQL
+            )
+
+            db.session.add(new_lead)
+            db.session.commit()
+        except Exception as db_err:
+            db.session.rollback()
+            print(f"Database commit error on sell_car: {db_err}")
+            flash('An error occurred while saving your details. Please try again.')
+            return redirect(url_for('sell_car'))
+
+        # 3. SocketIO Notification
+        try:
+            socketio.emit('new_inquiry', {
+                'title': 'New Car Sell Request!',
+                'message': f'New valuation offer received for {year_val} {brand} {car_model}. Contact: {phone}'
+            })
+        except Exception as s_err:
+            print(f"SocketIO emit error: {s_err}")
+
+        # 4. Email Notification with explicit socket timeout
+        try:
+            # Prevents Gmail connection from hanging for more than 5 seconds
+            socket.setdefaulttimeout(5)
+            
             msg = Message(
                 subject=f'🚀 NEW SELL REQUEST: {year_val} {brand} {car_model}',
                 sender=app.config['MAIL_USERNAME'],
                 recipients=[NOTIFICATION_EMAIL],
             )
             msg.body = f"""
-            🔥 NEW VEHICLE VALUATION REQUEST RECEIVED!
-            
-            CUSTOMER DETAILS:
-            • Name: {name}
-            • Phone: {phone}
-            • Email: {email}
-            
-            VEHICLE DETAILS:
-            • Vehicle: {year_val} {brand} {car_model}
-            • KM Driven: {km_driven}
-            • Expected Price: ₹{expected_amount}
-            """
+                    🔥 NEW VEHICLE VALUATION REQUEST RECEIVED!
+
+                    CUSTOMER DETAILS:
+                    • Name: {name}
+                    • Phone: {phone}
+                    • Email: {email}
+
+                    VEHICLE DETAILS:
+                    • Vehicle: {year_val} {brand} {car_model}
+                    • KM Driven: {km_driven}
+                    • Expected Price: ₹{expected_amount}
+                    • Images: {len(saved_image_paths)} uploaded
+                    """
             mail.send(msg)
+            print("Mail sent successfully")
         except Exception as e:
             print(f'Email send error: {e}')
 
@@ -283,13 +308,15 @@ def submit_sell_car():
     car_name = request.form.get('car_name', 'Vehicle')
     phone = request.form.get('phone', 'N/A')
 
-    socketio.emit('new_inquiry', {
-        'title': 'New Car Inquiry!',
-        'message': f'New offer received for {car_name}. Contact: {phone}'
-    })
+    try:
+        socketio.emit('new_inquiry', {
+            'title': 'New Car Inquiry!',
+            'message': f'New offer received for {car_name}. Contact: {phone}'
+        })
+    except Exception as e:
+        print(f"SocketIO submit_sell_car error: {e}")
 
     return jsonify({"status": "success", "message": "Inquiry submitted successfully"})
-
 
 @app.route('/car/<int:car_id>')
 def share_car(car_id):
