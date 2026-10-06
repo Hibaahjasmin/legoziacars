@@ -335,11 +335,11 @@
 <!-- SQUARE IMAGE CONTAINER -->
 <div class="relative w-full aspect-[16/10] bg-[#E2DCCE] overflow-hidden">
    {% if car.images and car.images|length > 0 %}
-    <img src="{{ car.images[0].image_path if car.images[0].image_path.startswith('http') else '/static/' ~ car.images[0].image_path }}" 
-         alt="{{ car.brand }} {{ car.model }}" 
-         loading="lazy" 
-         onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image+Available';"
-         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out">
+   <img src="{{ car.images[0].image_path.replace('/upload/', '/upload/f_auto,q_auto,w_800/') if car.images[0].image_path.startswith('http') else '/static/' ~ car.images[0].image_path }}" 
+     alt="{{ car.brand }} {{ car.model }}" 
+     loading="lazy" 
+     onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image+Available';"
+     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out">
 {% else %}
         <!-- Fallback Placeholder -->
         <div class="w-full h-full flex flex-col items-center justify-center bg-[#D8D2C6] text-[#8B5E34]">
@@ -416,11 +416,11 @@
     
     <!-- Main Display Image -->
     <div class="relative bg-[#D8D2C6] aspect-[16/10] w-full rounded-xl overflow-hidden border border-[#8B5E34]/30 shadow-inner">
-    <img :src="(selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex]).startsWith('http') 
-                ? (selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex]) 
-                : '/static/' + (selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex])" 
-         class="w-full h-full object-cover transition-all duration-500" 
-         :alt="selectedCar.model">
+   <img :src="((selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex]).startsWith('http') 
+            ? (selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex]).replace('/upload/', '/upload/f_auto,q_auto,w_1000/') 
+            : '/static/' + (selectedCar.images[activeImageIndex].image_path || selectedCar.images[activeImageIndex]))" 
+     class="w-full h-full object-cover transition-all duration-500" 
+     :alt="selectedCar.model">
     <div class="absolute bottom-2.5 right-2.5 bg-[#121A11]/90 backdrop-blur-md text-[#8B5E34] text-[10px] px-2 py-0.5 rounded font-mono font-bold tracking-widest border border-[#8B5E34]/30">
         <span x-text="activeImageIndex + 1"></span>/<span x-text="selectedCar.images.length"></span>
     </div>
@@ -432,8 +432,10 @@
         <button @click="activeImageIndex = idx" 
                 class="relative w-14 h-10 sm:w-20 sm:h-12 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all duration-300"
                 :class="activeImageIndex === idx ? 'border-[#8B5E34] scale-95 shadow-[0_0_10px_rgba(139,94,52,0.3)]' : 'border-[#8B5E34]/20 opacity-60 hover:opacity-100'">
-            <img :src="(img.image_path || img).startsWith('http') ? (img.image_path || img) : '/static/' + (img.image_path || img)" 
-                 class="w-full h-full object-cover">
+            <img :src="((img.image_path || img).startsWith('http') 
+            ? (img.image_path || img).replace('/upload/', '/upload/f_auto,q_auto,w_300/') 
+            : '/static/' + (img.image_path || img))" 
+     class="w-full h-full object-cover">
         </button>
     </template>
 </div>
