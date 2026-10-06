@@ -505,9 +505,6 @@ def publish_inquiry(id):
 
 
 
-@app.route('/robots.txt')
-def serve_robots_file():
-    return send_from_directory(app.static_folder, 'robots.txt')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -541,11 +538,10 @@ def logout():
     flash("Logged out successfully.", "info")
     return redirect(url_for('home'))
 
-
 @app.route('/robots.txt')
 def robots():
-    base_url = os.getenv('DOMAIN_NAME', request.url_root.rstrip('/'))
-    content = f"User-agent: *\nDisallow: /admin\nAllow: /\nSitemap: {base_url}/sitemap.xml"
+    domain = os.getenv('DOMAIN_NAME', request.url_root).rstrip('/')
+    content = f"User-agent: *\nDisallow: /admin\nAllow: /\nSitemap: {domain}/sitemap.xml"
     return app.response_class(content, mimetype='text/plain')
 
 
@@ -553,8 +549,8 @@ def robots():
 def sitemap():
     cars = Car.query.all()
     
-    # Resolves base URL dynamically from environment or request root
-    base_url = os.getenv('DOMAIN_NAME', request.url_root.rstrip('/'))
+    # Clean trailing slash or spaces from env var
+    base_url = os.getenv('DOMAIN_NAME', request.url_root).strip().rstrip('/')
     
     xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -571,7 +567,6 @@ def sitemap():
     xml_content += '</urlset>'
     
     return app.response_class(xml_content, mimetype='application/xml')
-
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, port=5000, host="0.0.0.0")
